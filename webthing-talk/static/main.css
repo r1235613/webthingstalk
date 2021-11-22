@@ -1,0 +1,199 @@
+/*== table start ==*/
+table {
+  width: 100%;
+  border-style: solid;
+  border-color: black;
+  border-width: 2px;
+  border-radius: 8px 8px 8px 8px;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+thead {
+  background-color: #bebebe;
+  height: 35px;
+}
+thead > tr > td {
+  height: 35px;
+  padding-left: 5%;
+  border-left: 2px solid;
+}
+thead > tr > td:first-child {
+  border-top-left-radius: 5px;
+  border-left: none;
+}
+thead > tr > td:last-child {
+  border-top-right-radius: 5px;
+}
+tbody > tr {
+  height: 35px;
+}
+tbody > tr > td {
+  text-align: center;
+  border-left: 2px solid;
+  border-top: 2px solid;
+}
+tbody > tr > td:first-child {
+  border-left: none;
+}
+tbody > td {
+  min-height: 5px;
+  border-left: 2px solid;
+  border-top: 2px solid;
+}
+tbody > td:first-child {
+  border-left: none;
+}
+tbody > td > tr {
+  height: 35px;
+  text-align: center;
+  border-top: 2px solid;
+}
+/*== table end ==*/
+
+/*== do start ==*/
+.do-container {
+  margin-bottom: 10px;
+  border: 2px solid;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.do-header {
+  height: 7%;
+}
+
+.do-setting {
+  float: left;
+  width: 25%;
+  border-right: 2px solid;
+}
+
+.do-setting-img {
+  cursor: pointer;
+  height: 100%;
+}
+
+.do-device {
+  float: left;
+  width: 75%;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.device-name {
+  font-weight: normal;
+}
+
+.mounted {
+  color: blue;
+}
+
+.mounted.offline {
+  color: red;
+}
+
+.do-content {
+  border-top: 2px solid;
+}
+
+.dfo-container {
+  box-shadow: 4px 4px 3px rgba(20%, 20%, 40%, 0.5);
+  border-radius: 8px;
+  border: 2px solid;
+  margin: 2%;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.dfo-name {
+  width: 75%;
+  font-weight: normal;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.dfo-image[df_type="input"] {
+  float: right;
+}
+
+.dfo-image[df_type="output"] {
+  float: left;
+}
+/*== do end ==*/
+
+select {
+  border-color: transparent;
+  -webkit-appearance: menulist-button;
+  width: 100%;
+  height: 33px;
+  line-height: 35px;
+}
+
+label {
+  max-width: 100%;
+  margin-bottom: 5px;
+  font-weight: 700;
+}
+
+#left-window,
+#right-window {
+  min-height: 100%;
+  height: auto;
+  padding-top: 2%;
+  padding-bottom: 2%;
+}
+
+#right-window {
+  background-color: #e9e9e9;
+}
+
+#device-container,
+#feature-container {
+  border-style: solid;
+  border-width: 2.5px;
+  border-radius: 8px 8px 8px 8px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+#feature-container {
+  background-color: white;
+}
+
+.management-title {
+  width: 100%;
+  font-weight: bold;
+  font-size: large;
+  text-align: center;
+  margin-top: 4%;
+}
+
+/* .manage-content {
+  margin-left: 5%;
+  margin-right: 5%;
+  margin-bottom: 1%;
+} */
+
+/* .content-title {
+  margin-right: 10px;
+} */
+
+
+.model-df-list-container {
+  max-height: 120px;
+  overflow: auto;
+  margin: 2px;
+}
+
+.model-df-list-container > input {
+  width: 100%;
+}
+
+.manage-info-container p {
+  cursor: pointer;
+  text-align: left;
+  margin-left: 5%;
+  margin-right: 5%;
+  width: 90%;
+}
