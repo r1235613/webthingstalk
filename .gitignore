@@ -1,0 +1,8 @@
+__pycache__
+_/env/.env
+*.egg-info
+*.bk
+*.sqlite3*
+tags
+upload
+django-x-talk-template/
