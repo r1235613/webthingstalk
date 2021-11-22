@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'devices.apps.DevicesConfig',
+    'xtalk_template',
 ]
 
 MIDDLEWARE = [
@@ -124,3 +125,14 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Django X Talk Template
+AUTH_USER_MODEL = 'devices.User'
+XTALK_REFRESHTOKEN_MODEL = 'devices.RefreshToken'
+XTALK_ACCESSTOKEN_MODEL = 'devices.AccessToken'
+
+XTALK_OAUTH2_CLIENT_ID = "7INnZCoKxje2LF9uFIWBlEjP2zToGWsabMdQEaP2"
+XTALK_OAUTH2_CLIENT_SECRET = "2fuDVCo5Gx27MpZLHsCpWqZKuvXOHz0QHSEsNWqdUJKhyVZ9VNNE9kWzDQbxe9nC5EP8ZLl78vNVO6IOwXi0wI9TEyXEnmSCgKK50ClAr5zVwfTwPqz97p16LiLM9iTOitNYfNEx7mXMQfLPGzwWYBx7j6dcCgO0"
+XTALK_OAUTH2_REDIRECT_URI = "http://localhost:8000/auth/callback"
+XTALK_OIDC_DISCOVERY_ENDPOINT = "https://dev-account.haohao.in/.well-known/openid-configuration"
+XTALK_OAUTH2_REVOCATION_ENDPOINT = "https://dev-account.haohao.in/oauth2/v1/revoke/"

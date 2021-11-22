@@ -1,7 +1,7 @@
-from django.urls import path
+from django.urls import include, path
 
 from . import views
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', include('xtalk_template.urls', namespace='xtalk_template')),
 ]
