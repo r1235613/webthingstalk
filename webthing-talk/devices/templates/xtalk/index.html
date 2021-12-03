@@ -1,0 +1,179 @@
+{% extends "./base_navbar.html" %} 
+
+{% block additional_static_files %}
+  <link rel="stylesheet" href="/static/main.css"/>
+{% endblock %}
+
+{% block title %} WebThing Talk {% endblock %}
+
+{% block xtalk_brand_name %} WebThing Talk {% endblock %}
+
+{% block nav_items %}
+  {% if user.is_authenticated %}
+    <li class="nav-item">
+      <a class="fs-5 nav-link" href="#" role="button"> Add Device </a>
+    </li>
+  {% endif %}
+{% endblock %}
+
+
+{% block body %}
+<div id="content" class="row">
+  <div id="left-window" class="col-sm-6" style="min-height: 766px">
+    {% if user.is_authenticated %}
+    
+    <div id="device-container" class="container">
+      <label class="management-title">Device List</label>
+
+      <div class="manage-content">
+        <div class="do-container">
+          <div class="do-header" style="height: 55px">
+            <div class="do-setting" style="height: 55px">
+              <img
+                src="/static/images/setting.png"
+                do_id="6"
+                class="do-setting-img"
+                style="height: 55px"
+              />
+            </div>
+            <div class="do-device" style="height: 55px">
+              <span class="device-name" style="line-height: 55px">Light</span>
+            </div>
+          </div>
+          <div class="do-content">
+            <div class="dfo-container" dfo_id="15" style="height: 55px">
+              <label class="dfo-name" style="line-height: 51px">Light1</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="manage-content">
+        <div class="do-container">
+          <div class="do-header" style="height: 55px">
+            <div class="do-setting" style="height: 55px">
+              <img
+                src="/static/images/setting.png"
+                do_id="6"
+                class="do-setting-img"
+                style="height: 55px"
+              />
+            </div>
+            <div class="do-device" style="height: 55px">
+              <span class="device-name" style="line-height: 55px"
+                >OnOffSwith</span
+              >
+            </div>
+          </div>
+          <div class="do-content">
+            <div class="dfo-container" dfo_id="15" style="height: 55px">
+              <label class="dfo-name" style="line-height: 51px"
+                >OnOffSwith Device Name</label
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div id="right-window" class="col-sm-6" style="min-height: 766px">
+    {% if user.is_authenticated %}
+
+    <div id="feature-container" class="container">
+      <label class="management-title mb-2">Edit Device</label>
+
+      <div class="row mb-2">
+        <label class="col-sm-4">Device Url</label>
+        <input class="col-sm-8" type="text" placeholder="http://192.168.0.100:8888" />
+      </div>
+
+      <div class="row mb-2">
+        <label class="col-sm-4">Device Name (Optional)</label>
+        <input class="col-sm-8" type="text" placeholder="Light1, OnOffSwith2 ..." />
+      </div>
+
+      <div class="mb-2">
+        <label class="content-title">Device Feature</label>
+
+        <table class="manage-info-container">
+          <thead>
+            <td>Feature</td>
+            <td>Enable</td>
+          </thead>
+          <tbody>
+            <tr>
+              <td valign="top">
+                <div class="model-df-list-container">
+                  OnOffProperty
+                </div>
+              </td>
+              <td valign="top">
+                <div class="model-df-list-container">
+                  <input type="checkbox" id="flexCheckDefault" checked disabled>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td valign="top">
+                <div class="model-df-list-container">
+                  BrightnessProperty
+                </div>
+              </td>
+              <td valign="top">
+                <div class="model-df-list-container">
+                  <input type="checkbox" id="flexCheckDefault" checked>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td valign="top">
+                <div class="model-df-list-container">
+                  ColorModeProperty
+                </div>
+              </td>
+              <td valign="top">
+                <div class="model-df-list-container">
+                  <input type="checkbox" id="flexCheckDefault" >
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td valign="top">
+                <div class="model-df-list-container">
+                  ColorProperty
+                </div>
+              </td>
+              <td valign="top">
+                <div class="model-df-list-container">
+                  <input type="checkbox" id="flexCheckDefault" >
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td valign="top">
+                <div class="model-df-list-container">
+                  ColorTemperatureProperty
+                </div>
+              </td>
+              <td valign="top">
+                <div class="model-df-list-container">
+                  <input type="checkbox" id="flexCheckDefault" >
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="manage-info-container ">
+        <button id="model-save">Save</button>
+        <button id="model-delete">Delete</button>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
