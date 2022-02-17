@@ -14,13 +14,14 @@ from xtalk_template.views import IndexView
 
 import iottalk_webthing
 
-from .forms import DeviceAddForm, DeviceCheckForm, DeviceDeleteForm
+from .forms import DeviceForm, DeviceDeleteForm
 
 
 import requests
 
 device_table = {'Light': {'properties': ['OnOffProperty', 'BrightnessProperty',
-                                         'ColorModeProperty', 'ColorProperty', 'ColorTemperatureProperty'], 'module': iottalk_webthing.Light}}
+                                         'ColorModeProperty', 'ColorProperty', 'ColorTemperatureProperty'], 'module': iottalk_webthing.Light},
+                'OnOffSwitch': {'properties': ['OnOffProperty', ], 'module': iottalk_webthing.OnOffSwitch}}
 user_devices = {}
 
 
@@ -38,12 +39,14 @@ class IndexView(IndexView):
         print(self.request.session.get('temp_device', {}))
         print(user_devices)
 
+        context['form'] = DeviceForm
+
         return context
 
 
 class DeviceCheckView(FormView):
     template_name = 'xtalk/index.html'
-    form_class = DeviceCheckForm
+    form_class = DeviceForm
     success_url = '/'
 
     def __get_device_info(self, url):
@@ -54,7 +57,6 @@ class DeviceCheckView(FormView):
 
         property_types = [data['properties'][x]['@type']
                           for x in data['properties'].keys()]
-        print('aaaa', property_types, device_type)
 
         property_use = {
             x: x in property_types for x in device_table[device_type]['properties']}
@@ -83,7 +85,7 @@ class DeviceCheckView(FormView):
 
 class DeviceAddView(FormView):
     template_name = 'xtalk/index.html'
-    form_class = DeviceAddForm
+    form_class = DeviceForm
     success_url = '/'
 
     def __check_device_name_existed(self, name):

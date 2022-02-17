@@ -20,7 +20,6 @@
 {% endfor %}
 <div id="content" class="row">
   <div id="left-window" class="col-sm-6" style="min-height: 766px">
-
     <div id="device-container" class="container">
       {% if user.is_authenticated %}
       <label class="management-title">Device List</label>
@@ -62,10 +61,20 @@
       {% if user.is_authenticated %}
       <form class="form-inline" method="post">
         {% csrf_token %}
+        <div class="row mb-2 align-items-center" id="device_type_block">
+          <label class="col-sm-2">Device Type</label>
+          <div class="col-sm-6">{{ form.device_type }}</div>
+        </div>
 
-        <div class="row mb-2 align-items-center">
+        <div class="row mb-2 align-items-center" id="gateway_token_block" style="display:none">
+          <label class="col-sm-2">Gatewy Token</label>
+          <div class="col-sm-6">{{ form.gateway_token }}</div>
+        </div>
+
+        <div class="row mb-2 align-items-center" id="device_url_block">
           <label class="col-sm-2">Device Url</label>
-          <input class="col-sm-6" type="text" name="url" placeholder="http://192.168.0.100:8888" value="{{ temp_device.url }}" />
+          <div class="col-sm-6">{{ form.device_url }}</div>
+          {% comment %} <input class="col-sm-6" type="text" name="url" placeholder="http://192.168.0.100:8888" value="{{ temp_device.url }}" /> {% endcomment %}
           <div class="col-sm-2"><button type="submit" class="btn btn-primary btn-sm" formaction="/check" {% if not temp_device.checked and not temp_device.device_connted %} required {% endif %}>Check</button></div>
           <div class="col-sm-1">
             {% if temp_device.checked and temp_device.device_connted %}
@@ -76,9 +85,17 @@
           </div>
         </div>
 
+        {% if temp_device.checked %}
+          <div class="row mb-2 align-items-center">
+            <label class="col-sm-2">Gatewy Device</label>
+            <div class="col-sm-6">{{ form.gateway_device }}</div>
+          </div>
+        {% endif %}
+        
         <div class="row mb-2 align-items-center">
           <label class="col-sm-2">Device Name</label>
-          <input class="col-sm-8" type="text" name="name" placeholder="Light1, OnOffSwith2 ..." value="{{ temp_device.name }}" />
+          <div class="col-sm-6">{{ form.device_name }}</div>
+          {% comment %} <input class="col-sm-8" type="text" name="name" placeholder="Light1, OnOffSwith2 ..." value="{{ temp_device.name }}" /> {% endcomment %}
         </div>
 
         <div class="row mb-2 align-items-center">
@@ -124,5 +141,21 @@
     </div>
   </div>
 </div>
+
+<script>
+  function showGatewayBlock() {
+    device_type = document.getElementById("id_device_type").value
+    if (device_type == '0') {
+      document.getElementById("gateway_token_block").style.display = "none";
+      document.getElementById("id_gateway_token").required = false;
+      document.getElementById("device_url_block").getElementsByTagName("label")[0].innerHTML="Device Url";
+    } else {
+      document.getElementById("gateway_token_block").style.display = "";
+      document.getElementById("id_gateway_token").required = true;
+      document.getElementById("device_url_block").getElementsByTagName("label")[0].innerHTML="Gateway Url";
+    }
+  }
+</script>
+
 {% endblock %}
 
