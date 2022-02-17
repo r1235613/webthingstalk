@@ -11,19 +11,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-import sys
-from django.contrib.messages import constants as messages
-
-
-MESSAGE_TAGS = {
-    messages.DEBUG: 'alert-secondary',
-    messages.INFO: 'alert-info',
-    messages.SUCCESS: 'alert-success',
-    messages.WARNING: 'alert-warning',
-    messages.ERROR: 'alert-danger',
-}
-
-sys.modules['fontawesome_free'] = __import__('fontawesome-free')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,12 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-juvbooq=my2)1@*c4-1tkheklo@qoaw#i!e$=8+lj(27g0g&yv'
+SECRET_KEY = 'django-insecure-_1jv2md51_prbf*buy#^83cio^ed1-de8vfcna(9_@l*67n$dz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -50,10 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'devices.apps.DevicesConfig',
+    'devices',
     'xtalk_template',
-    'fontawesome_free',
-    "sslserver",
 ]
 
 MIDDLEWARE = [
@@ -120,7 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'zh-hant'
+LANGUAGE_CODE = 'zh-Hant'
 
 TIME_ZONE = 'Asia/Taipei'
 
@@ -135,24 +120,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Django X Talk Template
 AUTH_USER_MODEL = 'devices.User'
-XTALK_REFRESHTOKEN_MODEL = 'devices.RefreshToken'
-XTALK_ACCESSTOKEN_MODEL = 'devices.AccessToken'
 
-XTALK_OAUTH2_CLIENT_ID = "MB5Qzv4qxH4engGU2xJUZq2jpz4OCae59H8dXV3m"
-XTALK_OAUTH2_CLIENT_SECRET = "uQUjC3yQNNRHlLiDkTiQcylhGB0eTquMcf3ylPVi9XvlGZwZEUSG1G2WphewtEavXzGkVWRi0BHu3bnhZH5P9XUVQnAmS2vPFFVqqzpox0bRxvGmt8S1POi1zkRpZSs9Ype5gIx6Ri3uCOJ2ESJ89HGZXRPeixxO"
-XTALK_OAUTH2_REDIRECT_URI = "https://localhost:8000/auth/callback"
-XTALK_OIDC_DISCOVERY_ENDPOINT = "https://account-test.iottalk2.tw/.well-known/openid-configuration"
-XTALK_OAUTH2_REVOCATION_ENDPOINT = "https://account-test.iottalk2.tw/oauth2/v1/revoke/"
+XTALK_OAUTH2_CLIENT_ID = '7INnZCoKxje2LF9uFIWBlEjP2zToGWsabMdQEaP2'
+XTALK_OAUTH2_CLIENT_SECRET = '2fuDVCo5Gx27MpZLHsCpWqZKuvXOHz0QHSEsNWqdUJKhyVZ9VNNE9kWzDQbxe9nC5EP8ZLl78vNVO6IOwXi0wI9TEyXEnmSCgKK50ClAr5zVwfTwPqz97p16LiLM9iTOitNYfNEx7mXMQfLPGzwWYBx7j6dcCgO0'
+XTALK_OAUTH2_REDIRECT_URI = 'http://localhost:8000/auth/callback'
+XTALK_OIDC_DISCOVERY_ENDPOINT = 'https://dev-account.haohao.in/.well-known/openid-configuration'
+XTALK_OAUTH2_REVOCATION_ENDPOINT = 'https://dev-account.haohao.in/oauth2/v1/revoke/'

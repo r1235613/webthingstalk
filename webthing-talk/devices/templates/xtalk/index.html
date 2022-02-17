@@ -9,170 +9,119 @@
 {% block xtalk_brand_name %} WebThing Talk {% endblock %}
 
 {% block nav_items %}
-  {% if user.is_authenticated %}
-    <li class="nav-item">
-      <a class="fs-5 nav-link" href="#" role="button"> Add Device </a>
-    </li>
-  {% endif %}
 {% endblock %}
 
-
 {% block body %}
+{% for message in messages %}
+  <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message | safe }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{% endfor %}
 <div id="content" class="row">
   <div id="left-window" class="col-sm-6" style="min-height: 766px">
-    {% if user.is_authenticated %}
-    
+
     <div id="device-container" class="container">
+      {% if user.is_authenticated %}
       <label class="management-title">Device List</label>
-
+      {% if user_devices|length > 0 %}
+      {% for key, value in user_devices.items %}
       <div class="manage-content">
         <div class="do-container">
           <div class="do-header" style="height: 55px">
-            <div class="do-setting" style="height: 55px">
-              <img
-                src="/static/images/setting.png"
-                do_id="6"
-                class="do-setting-img"
-                style="height: 55px"
-              />
-            </div>
+            <form class="form-inline" method="post" action="/delete">
+              {% csrf_token %}
+              <input type="hidden" name="key" value={{ key }}>
+              <div class="do-setting" style="height: 55px">
+                <button class="do-setting-img btn" type="submit">
+                  <i class="fas fa-trash fa-2x"></i>
+                </button>
+              </div>
+            </form>
             <div class="do-device" style="height: 55px">
-              <span class="device-name" style="line-height: 55px">Light</span>
+              <span class="device-name" style="line-height: 55px">{{ key }} ({{ value.device_type }})</span>
             </div>
           </div>
           <div class="do-content">
-            <div class="dfo-container" dfo_id="15" style="height: 55px">
-              <label class="dfo-name" style="line-height: 51px">Light1</label>
+            {% for df in value.properties %}
+            <div class="col dfo-container" style="height: 55px">
+              <label class="dfo-name" style="line-height: 51px">{{ df }}</label>
             </div>
+            {% endfor %}
           </div>
         </div>
       </div>
-
-      <div class="manage-content">
-        <div class="do-container">
-          <div class="do-header" style="height: 55px">
-            <div class="do-setting" style="height: 55px">
-              <img
-                src="/static/images/setting.png"
-                do_id="6"
-                class="do-setting-img"
-                style="height: 55px"
-              />
-            </div>
-            <div class="do-device" style="height: 55px">
-              <span class="device-name" style="line-height: 55px"
-                >OnOffSwith</span
-              >
-            </div>
-          </div>
-          <div class="do-content">
-            <div class="dfo-container" dfo_id="15" style="height: 55px">
-              <label class="dfo-name" style="line-height: 51px"
-                >OnOffSwith Device Name</label
-              >
-            </div>
-          </div>
-        </div>
-      </div>
+      {% endfor %}
+      {% endif %}
+      {% endif %}
     </div>
-    {% endif %}
   </div>
 
   <div id="right-window" class="col-sm-6" style="min-height: 766px">
-    {% if user.is_authenticated %}
+      <label class="management-title mb-2">Add Device</label>
+      {% if user.is_authenticated %}
+      <form class="form-inline" method="post">
+        {% csrf_token %}
 
-    <div id="feature-container" class="container">
-      <label class="management-title mb-2">Edit Device</label>
+        <div class="row mb-2 align-items-center">
+          <label class="col-sm-2">Device Url</label>
+          <input class="col-sm-6" type="text" name="url" placeholder="http://192.168.0.100:8888" value="{{ temp_device.url }}" />
+          <div class="col-sm-2"><button type="submit" class="btn btn-primary btn-sm" formaction="/check" {% if not temp_device.checked and not temp_device.device_connted %} required {% endif %}>Check</button></div>
+          <div class="col-sm-1">
+            {% if temp_device.checked and temp_device.device_connted %}
+              <i class="far fa-check-circle fa-2x"></i>
+            {% elif temp_device.checked and not temp_device.device_connted %}
+              <i class="fas fa-exclamation-circle fa-2x"></i>
+            {% endif %}
+          </div>
+        </div>
 
-      <div class="row mb-2">
-        <label class="col-sm-4">Device Url</label>
-        <input class="col-sm-8" type="text" placeholder="http://192.168.0.100:8888" />
-      </div>
+        <div class="row mb-2 align-items-center">
+          <label class="col-sm-2">Device Name</label>
+          <input class="col-sm-8" type="text" name="name" placeholder="Light1, OnOffSwith2 ..." value="{{ temp_device.name }}" />
+        </div>
 
-      <div class="row mb-2">
-        <label class="col-sm-4">Device Name (Optional)</label>
-        <input class="col-sm-8" type="text" placeholder="Light1, OnOffSwith2 ..." />
-      </div>
+        <div class="row mb-2 align-items-center">
+          <label class="col-sm-2" for="claimCheck">Claim</label>
+          <input class="col-sm-1" type="checkbox" name="claim" id="claimCheck" value="True" {% if temp_device.claim %} checked {% endif %} />
+        </div>
 
-      <div class="mb-2">
-        <label class="content-title">Device Feature</label>
+        {% if temp_device.property_use|length > 0 %}
+        <div class="mb-2">
+          <label class="content-title">Device Feature</label>
+          
+          <table class="manage-info-container">
+            <thead>
+              <td>Feature</td>
+              <td>Enable</td>
+            </thead>
+            <tbody>
+              {% for key, value in temp_device.property_use.items %}
+              <tr>
+                <td valign="top">
+                  <div class="model-df-list-container">
+                    {{ key }}
+                  </div>
+                </td>
+                <td valign="top">
+                  <div class="model-df-list-container">
+                    <input type="checkbox" id="flexCheckDefault" {% if value %} checked {% endif %} disabled>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
 
-        <table class="manage-info-container">
-          <thead>
-            <td>Feature</td>
-            <td>Enable</td>
-          </thead>
-          <tbody>
-            <tr>
-              <td valign="top">
-                <div class="model-df-list-container">
-                  OnOffProperty
-                </div>
-              </td>
-              <td valign="top">
-                <div class="model-df-list-container">
-                  <input type="checkbox" id="flexCheckDefault" checked disabled>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td valign="top">
-                <div class="model-df-list-container">
-                  BrightnessProperty
-                </div>
-              </td>
-              <td valign="top">
-                <div class="model-df-list-container">
-                  <input type="checkbox" id="flexCheckDefault" checked>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td valign="top">
-                <div class="model-df-list-container">
-                  ColorModeProperty
-                </div>
-              </td>
-              <td valign="top">
-                <div class="model-df-list-container">
-                  <input type="checkbox" id="flexCheckDefault" >
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td valign="top">
-                <div class="model-df-list-container">
-                  ColorProperty
-                </div>
-              </td>
-              <td valign="top">
-                <div class="model-df-list-container">
-                  <input type="checkbox" id="flexCheckDefault" >
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td valign="top">
-                <div class="model-df-list-container">
-                  ColorTemperatureProperty
-                </div>
-              </td>
-              <td valign="top">
-                <div class="model-df-list-container">
-                  <input type="checkbox" id="flexCheckDefault" >
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="manage-info-container ">
-        <button id="model-save">Save</button>
-        <button id="model-delete">Delete</button>
-      </div>
+        <div class="manage-info-container ">
+          <button type="submit" formaction="/add" id="model-save" {% if not temp_device.checked and not temp_device.device_connted %} disabled {% endif %}>Save</button>
+          {% comment %} <button id="model-delete" disabled>Delete</button> {% endcomment %}
+        </div>
+      </form>
+      {% endif %}
     </div>
-    {% endif %}
   </div>
 </div>
 {% endblock %}
