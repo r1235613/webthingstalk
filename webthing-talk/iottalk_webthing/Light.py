@@ -18,7 +18,7 @@ class Light(DAI):
         on_connect=None,
         on_disconnect=None,
         push_interval=1,
-        interval=None,
+        interval=1,
     ):
         device_features = {
             "Brightness-I": DeviceFeature(
@@ -53,7 +53,7 @@ class Light(DAI):
 
         super().__init__(
             api_url=api_url,
-            device_model="Light",
+            device_model="WT_Light",
             device_addr=device_addr,
             device_name=device_name,
             persistent_binding=False,
@@ -74,7 +74,7 @@ class Light(DAI):
         self.webthing_url = webthing_url
 
     def set_webthing_brightness(self, data: list):
-        payload = json.dumps({'brightness': int(data[0])})
+        payload = json.dumps({'brightness': int(float(data[0]) * 100)})
         requests.put(
             '{0}/properties/brightness'.format(self.webthing_url), payload)
 
