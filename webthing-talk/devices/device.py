@@ -52,7 +52,7 @@ device_table = {
 
 
 class _Device():
-    def __init__(self, type, url, token='', name='', claim='', model=''):
+    def __init__(self, type, url, token='', name='', claim='', model='', href=None, properties={}):
         self.type = type
         self.url = url
         self.token = token
@@ -63,9 +63,9 @@ class _Device():
         self.device_list = {}
         self.select_device = None
 
-        self.properties = {}
+        self.properties = properties
 
-        self.href = ''
+        self.href = href
 
         self.checked = False
         self.connected = False
@@ -132,8 +132,6 @@ class _Device():
 
             property_cnt_dict[value] = property_cnt + 1
 
-        print(self.properties)
-
     def _get_gateway_device_info(self):
         url = '{0}/things/'.format(self.url.rstrip('/'))
         headers = {'Authorization': 'Bearer {0}'.format(
@@ -165,8 +163,6 @@ class _Device():
 
             property_cnt_dict[value] = property_cnt + 1
 
-        print(self.properties)
-
 
 class _DeviceHander():
     def __init__(self):
@@ -175,8 +171,10 @@ class _DeviceHander():
 
         devices = list(Device.objects.all())
         for d in devices:
+            properties = {x.name: {'property': x.property, 'idf': x.idf,
+                                   'odf': x.odf} for x in list(d.property.all())}
             self._user_temp_device[d.user_id] = _Device(
-                d.type, d.url, d.token, d.name, d.claim, model=d.model)
+                d.type, d.url, d.token, d.name, d.claim, model=d.model, href=d.href, properties=properties)
             self.create_device(d.user_id)
 
     def create_temp_device(self, user_id, type, url, token='', name='', claim='', model=''):
@@ -234,6 +232,7 @@ class _DeviceHander():
                 name=temp_dev.name,
                 model=temp_dev.model,
                 claim=temp_dev.claim,
+                href=temp_dev.href,
                 start_time=datetime.now()
             )
             for key, value in temp_dev.properties.items():
@@ -246,7 +245,6 @@ class _DeviceHander():
 
     def _create_device_process(self, user_id, device):
         username = User.objects.get(id=user_id).username
-
         obj = device_table[device.model]['module']
         proc = obj(
             'http://192.168.52.140/csm',

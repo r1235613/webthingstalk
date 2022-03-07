@@ -32,6 +32,8 @@ class Device(models.Model):
     model = models.TextField(blank=True)
     claim = models.TextField(blank=True)
 
+    href = models.TextField(null=True)
+
     creat_time = models.DateTimeField(auto_now_add=True)
     start_time = models.DateTimeField(null=True)
 
