@@ -1,3 +1,4 @@
+from operator import mod
 from django.shortcuts import render
 
 from django.http import HttpResponse, request
@@ -12,73 +13,114 @@ from django.contrib import messages
 
 from xtalk_template.views import IndexView
 
-import iottalk_webthing
-
 from .forms import DeviceForm, DeviceDeleteForm
 
+from .models import User, Device
+from .device import device_handler
 
-import requests
 
-device_table = {'Light': {'properties': ['OnOffProperty', 'BrightnessProperty',
-                                         'ColorModeProperty', 'ColorProperty', 'ColorTemperatureProperty'], 'module': iottalk_webthing.Light},
-                'OnOffSwitch': {'properties': ['OnOffProperty', ], 'module': iottalk_webthing.OnOffSwitch}}
-user_devices = {}
+user_temp_device = {}
 
 
 class IndexView(IndexView):
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
 
-        if self.request.user.username not in user_devices.keys():
-            user_devices[self.request.user.username] = {}
+        if self.request.user.username == '':
+            return context
+        user_id = User.objects.get(username=self.request.user.username).id
 
-        context['temp_device'] = self.request.session.get(
-            'temp_device', {'claim': False})
-        context['user_devices'] = user_devices[self.request.user.username]
+        context['temp_device'] = device_handler.get_temp_device(user_id)
+        context['user_devices'] = Device.objects.filter(
+            user_id=user_id).all()
 
-        print(self.request.session.get('temp_device', {}))
-        print(user_devices)
+        print('temp_device', context['temp_device'])
+        print('user_devices', context['user_devices'])
 
-        context['form'] = DeviceForm
+        context['form'] = DeviceForm(
+            device_choices=[
+                (name, name) for name, _ in context['temp_device'].device_list.items()],
+            initial={
+                'type': context['temp_device'].type,
+                'url': context['temp_device'].url,
+                'token': context['temp_device'].token,
+                'select_device': context['temp_device'].select_device,
+                'name': context['temp_device'].name,
+                'claim': context['temp_device'].claim
+            })
 
         return context
 
 
-class DeviceCheckView(FormView):
+class NativeDeviceCheckView(FormView):
     template_name = 'xtalk/index.html'
     form_class = DeviceForm
     success_url = '/'
 
-    def __get_device_info(self, url):
-        r = requests.get(url, timeout=5)
-        data = r.json()
+    def form_valid(self, form):
+        user_id = User.objects.get(username=self.request.user.username).id
 
-        device_type = data['selectedCapability'][0]
+        url = form.data.get('url', '')
+        name = form.data.get('name', '')
+        claim = form.data.get('claim', '')
+        print('nade', url, name, claim)
 
-        property_types = [data['properties'][x]['@type']
-                          for x in data['properties'].keys()]
+        device_handler.delete_temp_device(user_id)
+        device_handler.create_temp_device(
+            user_id, 'native', url, '', name, claim)
 
-        property_use = {
-            x: x in property_types for x in device_table[device_type]['properties']}
+        try:
+            device_handler.temp_device_get_info(user_id)
+        except:
+            messages.error(
+                self.request, 'Connection failed, please check Device Type and URL.')
+            return super().form_valid(form)
 
-        return device_type, property_use
+        return super().form_valid(form)
+
+
+class ConnectGatewayView(FormView):
+    template_name = 'xtalk/index.html'
+    form_class = DeviceForm
+    success_url = '/'
 
     def form_valid(self, form):
-        data = {}
-        data['url'] = form.data['url']
-        data['name'] = form.data['name']
-        data['claim'] = bool(form.data.get('claim', False))
+        user_id = User.objects.get(username=self.request.user.username).id
+
+        type = form.data.get('type', 'native')
+        url = form.data.get('url', '')
+        token = form.data.get('token', '')
+        name = form.data.get('name', '')
+        claim = form.data.get('claim', '')
+
+        device_handler.delete_temp_device(user_id)
+        device_handler.create_temp_device(
+            user_id, 'gateway', url, token, name, claim)
+
         try:
-            data['device_type'], data['property_use'] = self.__get_device_info(
-                data['url'])
-
-            data['checked'] = True
-            data['device_connted'] = True
+            device_handler.temp_device_get_gateway_device(user_id)
         except:
-            data['checked'] = True
-            data['device_connted'] = False
+            messages.error(
+                self.request, 'Connection failed, please check Device Type, Gateway URL and Token.')
+            return super().form_valid(form)
 
-        self.request.session['temp_device'] = data
+        return super().form_valid(form)
+
+
+class GatewayDeviceCheckView(FormView):
+    template_name = 'xtalk/index.html'
+    form_class = DeviceForm
+    success_url = '/'
+
+    def form_valid(self, form):
+        user_id = User.objects.get(username=self.request.user.username).id
+
+        name = form.data.get('name', '')
+        claim = form.data.get('claim', '')
+        select_device = form.data.get('select_device', '')
+
+        device_handler.update_temp_device(user_id, name, claim, select_device)
+        device_handler.temp_device_get_info(user_id)
 
         return super().form_valid(form)
 
@@ -88,35 +130,21 @@ class DeviceAddView(FormView):
     form_class = DeviceForm
     success_url = '/'
 
-    def __check_device_name_existed(self, name):
-        return name in user_devices[self.request.user.username].keys()
-
     def form_valid(self, form):
-        if self.__check_device_name_existed(form.data['name']):
+        user_id = User.objects.get(username=self.request.user.username).id
+        temp_dev = device_handler.get_temp_device(user_id)
+
+        name = form.data.get('name', '')
+        claim = form.data.get('claim', '')
+        model = temp_dev.model
+
+        if device_handler.check_device_name_existed(user_id, name):
             messages.error(
-                self.request, 'Device name {0} already exists!'.format(form.data['name']))
+                self.request, 'Device name {0} already exists!'.format(form.data.get('name', '')))
             return super().form_valid(form)
 
-        temp_device = self.request.session['temp_device']
-
-        temp_device['name'] = form.data['name']
-        temp_device['claim'] = bool(form.data.get('claim', False))
-
-        obj = device_table[temp_device['device_type']]['module']
-        print(
-            "QQ", self.request.user.username if temp_device['claim'] else None)
-        device = obj('http://192.168.52.140/csm',
-                     temp_device['url'], device_name=temp_device['name'], username=self.request.user.username if temp_device['claim'] else None)
-
-        device.start()
-
-        user_devices[self.request.user.username][temp_device['name']] = {
-            'device_type': temp_device['device_type'],
-            'properties': [x[0] for x in temp_device['property_use'].items() if x[1]],
-            'device': device
-        }
-
-        self.request.session['temp_device'] = {}
+        device_handler.update_temp_device(user_id, name, claim, model)
+        device_handler.create_device(user_id)
 
         return super().form_valid(form)
 
@@ -127,10 +155,9 @@ class DeviceDeleteView(FormView):
     success_url = '/'
 
     def form_valid(self, form):
-        device = user_devices[self.request.user.username][form.data['key']]['device']
-        device.terminate()
-        device.join()
+        user_id = User.objects.get(username=self.request.user.username).id
+        name = form.data.get('key', '')
 
-        del user_devices[self.request.user.username][form.data['key']]
+        device_handler.delete_device(user_id, name)
 
         return super().form_valid(form)

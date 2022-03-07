@@ -1,4 +1,8 @@
+from operator import mod
+from statistics import mode
 from django.db import models
+from django.conf import settings
+from django.forms import modelformset_factory
 
 from xtalk_template.models import AbstractUser
 from xtalk_template.models import AbstractRefreshToken
@@ -15,3 +19,27 @@ class RefreshToken(AbstractRefreshToken):
 
 class AccessToken(AbstractAccessToken):
     pass
+
+
+class Device(models.Model):
+    type = models.TextField(blank=False)
+    url = models.TextField(blank=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
+    token = models.TextField(blank=False)
+
+    name = models.TextField(blank=True, unique=True)
+    model = models.TextField(blank=True)
+    claim = models.TextField(blank=True)
+
+    creat_time = models.DateTimeField(auto_now_add=True)
+    start_time = models.DateTimeField(null=True)
+
+    def to_dict(self):
+        return {'type': self.type, 'url': self.url, 'token': self.token, 'name': self.name, 'model': self.model, 'claim': self.claim, 'checked': self.checked, 'connected': self.connected}
+
+
+class DeviceProperty(models.Model):
+    property = models.TextField(blank=False)
+    device_name = models.ForeignKey(
+        Device, on_delete=models.CASCADE, related_name='property')
