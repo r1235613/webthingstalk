@@ -140,9 +140,6 @@ class Light(DAI):
             hex_rgb_str = json.loads(r.text).get(
                 property_name, 'None') if self.device_type == 'native' else json.loads(r.text)
 
-            print(list(int(hex_rgb_str.lstrip('#')[
-                i:i+2], 16) for i in (0, 2, 4)))
-
             return list(int(hex_rgb_str.lstrip('#')[
                 i:i+2], 16) for i in (0, 2, 4))
 
@@ -178,53 +175,60 @@ class Light(DAI):
 
     def Brightness_O(self, data):
         property_name = self._get_property_name('Brightness-O')
-
         if property_name != None:
             payload = json.dumps({property_name: int(
-                data[0])}) if self.device_type == 'native' else json.dumps(int(data[0]))
+                data[0])}) if self.device_type == 'native' else int(data[0])
             requests.put(
-                '{0}/properties/{1}'.format(self.webthing_url, property_name), payload, headers=self.headers)
+                '{0}/properties/{1}'.format(self.webthing_url, property_name),
+                json=payload if self.device_type == 'gateway' else None,
+                data=payload if self.device_type == 'native' else None,
+                headers=self.headers
+            )
 
     def Color_O(self, data):
         property_name = self._get_property_name('Color-O')
 
         if property_name != None:
-            hex_rgb_str = '#%02x%02x%02x'.format(data[0], data[1], data[2])
+            hex_rgb_str = '#{0:02x}{1:02x}{2:02x}'.format(
+                data[0], data[1], data[2])
             payload = json.dumps(
-                {property_name: hex_rgb_str}) if self.device_type == 'native' else json.dumps(hex_rgb_str)
+                {property_name: hex_rgb_str}) if self.device_type == 'native' else hex_rgb_str
             requests.put(
-                '{0}/properties/{1}'.format(self.webthing_url, property_name), payload, headers=self.headers)
+                '{0}/properties/{1}'.format(self.webthing_url, property_name),
+                json=payload if self.device_type == 'gateway' else None,
+                data=payload if self.device_type == 'native' else None,
+                headers=self.headers
+            )
 
     def ColorTemp_O(self, data):
         property_name = self._get_property_name('ColorTemp-O')
 
         if property_name != None:
             payload = json.dumps({property_name: int(
-                data[0])}) if self.device_type == 'native' else json.dumps(int(data[0]))
+                data[0])}) if self.device_type == 'native' else int(data[0])
             requests.put(
-                '{0}/properties/{1}'.format(self.webthing_url, property_name), payload, headers=self.headers)
+                '{0}/properties/{1}'.format(self.webthing_url, property_name),
+                json=payload if self.device_type == 'gateway' else None,
+                data=payload if self.device_type == 'native' else None,
+                headers=self.headers
+            )
 
     def OnOff_O(self, data):
         property_name = self._get_property_name('OnOff-O')
 
         if property_name != None:
+            r = requests.get(
+                '{0}/properties/{1}'.format(self.webthing_url, property_name), headers=self.headers)
+
+            status = json.loads(r.text)
+            if status == bool(data[0]):
+                return
+
             payload = json.dumps({property_name: bool(
-                data[0])}) if self.device_type == 'native' else json.dumps(bool(data[0]))
+                data[0])}) if self.device_type == 'native' else bool(data[0])
             requests.put(
-                '{0}/properties/{1}'.format(self.webthing_url, property_name), payload, headers=self.headers)
-
-    def set_webthing_brightness(self, data: list):
-        if self.gateway_token != None:
-            payload = json.dumps({'brightness': int(float(data[0]) * 100)})
-            requests.put(
-                '{0}/properties/brightness'.format(self.webthing_url), payload)
-        else:
-            payload = json.dumps({'brightness': int(float(data[0]) * 100)})
-            requests.put(
-                '{0}/properties/brightness'.format(self.webthing_url), payload)
-
-    def set_webthing_on(self, data: list):
-        if self.gateway_token != None:
-            payload = json.dumps({'on': bool(data[0])})
-            requests.put(
-                '{0}/properties/on'.format(self.webthing_url), payload)
+                '{0}/properties/{1}'.format(self.webthing_url, property_name),
+                json=payload if self.device_type == 'gateway' else None,
+                data=payload if self.device_type == 'native' else None,
+                headers=self.headers
+            )
