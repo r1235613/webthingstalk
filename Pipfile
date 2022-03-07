@@ -8,6 +8,7 @@ django-xtalk-template = {path = "./django-x-talk-template"}
 fontawesome-free = "*"
 iottalk-py = "*"
 django-sslserver = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 autopep8 = "*"
