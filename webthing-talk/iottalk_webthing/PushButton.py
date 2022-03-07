@@ -1,4 +1,3 @@
-from email import header
 import json
 import requests
 from iottalkpy.dai import DAI
@@ -80,8 +79,6 @@ class PushButton(DAI):
         self.device_type = 'gateway' if gateway_token != None else 'native'
         self.headers = {'Accept': 'application/json'} if self.device_type == 'native' else {
             'Authorization': 'Bearer {0}'.format(gateway_token), 'Accept': 'application/json'}
-
-        print(webthing_url)
 
     def _get_property_name(self, df):
         for key, value in self.property_table.items():
