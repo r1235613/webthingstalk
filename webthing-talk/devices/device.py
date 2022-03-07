@@ -65,6 +65,8 @@ class _Device():
 
         self.properties = {}
 
+        self.href = ''
+
         self.checked = False
         self.connected = False
 
@@ -144,6 +146,7 @@ class _Device():
         models = {x: len(device_table[x]['properties'])
                   for x in device['@type']}
         self.model = max(models, key=models.get)
+        self.href = device['href']
 
         property_types = {key: value['@type']
                           for key, value in device['properties'].items()}
@@ -218,7 +221,7 @@ class _DeviceHander():
         if user_id not in self._device_processes:
             self._device_processes[user_id] = {}
 
-        self._create_device(user_id, temp_dev)
+        self._create_device_process(user_id, temp_dev)
 
         dev = Device.objects.filter(
             user_id=user_id, name=temp_dev.name).first()
@@ -241,12 +244,19 @@ class _DeviceHander():
 
         self.delete_temp_device(user_id)
 
-    def _create_device(self, user_id, device):
+    def _create_device_process(self, user_id, device):
         username = User.objects.get(id=user_id).username
 
         obj = device_table[device.model]['module']
-        proc = obj('http://192.168.52.140/csm',
-                   device.url, device_name=device.name, username=username if device.claim == 'on' else None)
+        proc = obj(
+            'http://192.168.52.140/csm',
+            device.url.rstrip(
+                '/') + device.href if device.type == 'gateway' else device.url,
+            device_name=device.name,
+            username=username if device.claim == 'on' else None,
+            property_table=device.properties,
+            gateway_token=device.token if device.type == 'gateway' else None
+        )
         self._device_processes[user_id][device.name] = proc
         self._device_processes[user_id][device.name].start()
 
