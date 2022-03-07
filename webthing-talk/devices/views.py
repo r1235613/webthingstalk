@@ -35,11 +35,11 @@ class IndexView(IndexView):
             user_id=user_id).all()
 
         print('temp_device', context['temp_device'])
-        print('user_devices', context['user_devices'])
 
         context['form'] = DeviceForm(
             device_choices=[
                 (name, name) for name, _ in context['temp_device'].device_list.items()],
+            name_required=context['temp_device'].checked,
             initial={
                 'type': context['temp_device'].type,
                 'url': context['temp_device'].url,
@@ -63,7 +63,6 @@ class NativeDeviceCheckView(FormView):
         url = form.data.get('url', '')
         name = form.data.get('name', '')
         claim = form.data.get('claim', '')
-        print('nade', url, name, claim)
 
         device_handler.delete_temp_device(user_id)
         device_handler.create_temp_device(

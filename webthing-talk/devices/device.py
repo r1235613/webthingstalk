@@ -69,19 +69,21 @@ class _Device():
 
         self.checked = False
         self.connected = False
+        self.connected_gateway = False
 
     def __str__(self):
         return json.dumps(self.to_dict())
 
     def to_dict(self):
-        return {'type': self.type, 'url': self.url, 'token': self.token, 'name': self.name, 'claim': self.claim, 'model': self.model, 'properties': self.properties, 'device_list': self.device_list, 'select_device': self.select_device, 'checked': self.checked, 'connected': self.connected}
+        return {'type': self.type, 'url': self.url, 'token': self.token, 'name': self.name, 'claim': self.claim, 'model': self.model, 'properties': self.properties, 'device_list': self.device_list, 'select_device': self.select_device, 'checked': self.checked, 'connected': self.connected, 'connected_gateway': self.connected_gateway}
 
     def get_gateway_device(self):
         if self.type != 'gateway':
             raise ValueError('Not Gateway Device.')
 
-        self.checked = True
+        self.checked = False
         self.connected = False
+        self.connected_gateway = False
 
         url = '{0}/things/'.format(self.url.rstrip('/'))
         headers = {'Authorization': 'Bearer {0}'.format(
@@ -92,62 +94,48 @@ class _Device():
         self.device_list = {x['title']: {
             'device_type': x['selectedCapability'], 'device_url': x['href']} for x in data}
 
-        self.connected = True
+        self.connected_gateway = True
 
     def get_device_info(self):
         self.checked = True
         self.connected = False
 
-        if self.type == 'native':
-            self._get_native_device_info()
-        elif self.type == 'gateway':
-            self._get_gateway_device_info()
-        else:
+        try:
+            self._get_device_info(self.type)
+        except:
+            self.checked = False
             raise ValueError()
 
         self.connected = True
 
-    def _get_native_device_info(self):
-        r = requests.get(self.url, timeout=5)
-        data = r.json()
+    def _get_device_info(self, type):
+        if type == 'gateway':
+            url = '{0}/things/'.format(self.url.rstrip('/'))
+            headers = {'Authorization': 'Bearer {0}'.format(
+                self.token), 'Accept': 'application/json'}
+        else:
+            url = self.url
+            headers = {}
 
-        # 選擇最多屬性的裝置
-        models = {x: len(device_table[x]['properties'])for x in data['@type']}
-        self.model = max(models, key=models.get)
-
-        property_types = {key: value['@type']
-                          for key, value in data['properties'].items()}
-
-        self.properties = {}
-        property_cnt_dict = {}
-        for key, value in property_types.items():
-            property = device_table[self.model]['properties'][value]
-            property_cnt = property_cnt_dict.get(value, 0)
-
-            self.properties[key] = {
-                'property': value,
-                'idf': property['idf'][property_cnt] if property_cnt < len(property['idf']) else None,
-                'odf': property['odf'][property_cnt] if property_cnt < len(property['odf']) else None
-            }
-
-            property_cnt_dict[value] = property_cnt + 1
-
-    def _get_gateway_device_info(self):
-        url = '{0}/things/'.format(self.url.rstrip('/'))
-        headers = {'Authorization': 'Bearer {0}'.format(
-            self.token), 'Accept': 'application/json'}
         r = requests.get(url, timeout=5, headers=headers)
         data = r.json()
 
-        device = list(
-            filter(lambda x: x['title'] == self.select_device, data))[0]
-        models = {x: len(device_table[x]['properties'])
-                  for x in device['@type']}
-        self.model = max(models, key=models.get)
-        self.href = device['href']
-
-        property_types = {key: value['@type']
-                          for key, value in device['properties'].items()}
+        if type == 'gateway':
+            device = list(
+                filter(lambda x: x['title'] == self.select_device, data))[0]
+            models = {x: len(device_table[x]['properties'])
+                      for x in device['@type']}
+            self.model = max(models, key=models.get)
+            self.href = device['href']
+            property_types = {key: value['@type']
+                              for key, value in device['properties'].items()}
+        else:
+            # 選擇最多屬性的裝置
+            models = {x: len(device_table[x]['properties'])
+                      for x in data['@type']}
+            self.model = max(models, key=models.get)
+            property_types = {key: value['@type']
+                              for key, value in data['properties'].items()}
 
         self.properties = {}
         property_cnt_dict = {}

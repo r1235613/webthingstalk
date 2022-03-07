@@ -25,8 +25,10 @@ class DeviceForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         device_choices = kwargs.pop('device_choices', [])
+        name_required = kwargs.pop('name_required', [])
         super(DeviceForm, self).__init__(*args, **kwargs)
         self.fields['select_device'].choices = device_choices
+        self.fields['name'].required = name_required
 
 
 class DeviceDeleteForm(forms.Form):
