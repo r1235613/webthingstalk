@@ -42,6 +42,7 @@ class Device(models.Model):
 class DeviceProperty(models.Model):
     name = models.TextField(blank=False)
     property = models.TextField(blank=False)
-    df = models.TextField(blank=False)
+    idf = models.TextField(blank=False)
+    odf = models.TextField(null=True)
     device_name = models.ForeignKey(
         Device, on_delete=models.CASCADE, related_name='property')

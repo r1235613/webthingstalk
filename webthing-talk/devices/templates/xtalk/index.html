@@ -44,7 +44,7 @@
                 <div class="do-content">
                   {% for val in value.property.all %}
                   <div class="col dfo-container">
-                    <label class="dfo-name">{{ val.name }}: {{ val.property }} ({{ val.df }})</label>
+                    <label class="dfo-name">{{ val.name }}: {{ val.property }} ({{ val.idf }}, {{ val.odf }})</label>
                   </div>
                   {% endfor %}
                 </div>
@@ -115,7 +115,7 @@
           <table class="manage-info-container">
             <thead>
               <td style="width: 30%;">Name</td>
-              <td>Property (Device Feature)</td>
+              <td>Property (IDF, ODF)</td>
             </thead>
             <tbody>
               {% for key, value in temp_device.properties.items %}
@@ -127,7 +127,7 @@
                 </td>
                 <td valign="center">
                   <div class="model-df-list-container">
-                    {{ value.property }} ({{ value.df }})
+                    {{ value.property }} ({{ value.idf }}, {{ value.odf }})
                   </div>
                 </td>
               </tr>

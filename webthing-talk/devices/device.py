@@ -9,32 +9,30 @@ from .models import User, Device
 device_table = {
     'Light': {
         'properties': {
-            'OnOffProperty': {'idf': ['OnOff-I'], 'odf': ['OnOff-O'], 'read_only': False},
-            'BrightnessProperty': {'idf': ['Brightness-I'], 'odf': ['Brightness-O'], 'read_only': False},
-            'ColorModeProperty': {'idf': ['ColorMode-I'], 'read_only': True},
-            'ColorProperty': {'idf': ['Color-I'], 'odf': ['Color-O'], 'read_only': False},
+            'OnOffProperty': {'idf': ['OnOff-I'], 'odf': ['OnOff-O']},
+            'BrightnessProperty': {'idf': ['Brightness-I'], 'odf': ['Brightness-O']},
+            'ColorModeProperty': {'idf': ['ColorMode-I'], 'odf': []},
+            'ColorProperty': {'idf': ['Color-I'], 'odf': ['Color-O']},
             'ColorTemperatureProperty': {
                 'idf': ['ColorTemp-I'],
-                'odf': ['ColorTemp-O'],
-                'read_only': False
+                'odf': ['ColorTemp-O']
             },
         },
         'device_model': 'WT_Light',
         'module': iottalk_webthing.Light,
     },
     'OnOffSwitch': {
-        'properties': {'OnOffProperty': {'idf': ['OnOff-I'], 'odf': ['OnOff-O'], 'read_only': False}},
+        'properties': {'OnOffProperty': {'idf': ['OnOff-I'], 'odf': ['OnOff-O']}},
         'device_model': 'WT_OnOffSwitch',
         'module': iottalk_webthing.OnOffSwitch,
     },
     'ColorControl': {
         'properties': {
-            'ColorModeProperty': {'idf': ['ColorMode-I'], 'read_only': True},
-            'ColorProperty': {'idf': ['Color-I'], 'odf': ['Color-O'], 'read_only': False},
+            'ColorModeProperty': {'idf': ['ColorMode-I'], 'odf': []},
+            'ColorProperty': {'idf': ['Color-I'], 'odf': ['Color-O']},
             'ColorTemperatureProperty': {
                 'idf': ['ColorTemp-I'],
-                'odf': ['ColorTemp-O'],
-                'read_only': False
+                'odf': ['ColorTemp-O']
             },
         },
         'device_model': 'WT_ColorControl',
@@ -43,7 +41,8 @@ device_table = {
     'PushButton': {
         'properties': {
             'PushedProperty': {
-                'idf': ['Pushed-I1', 'Pushed-I2', 'Pushed-I3', 'Pushed-I4'], 'read_only': True
+                'idf': ['Pushed-I1', 'Pushed-I2', 'Pushed-I3', 'Pushed-I4'],
+                'odf': []
             },
         },
         'device_model': 'WT_PushButton',
@@ -52,7 +51,7 @@ device_table = {
 }
 
 
-class TempDevice():
+class _Device():
     def __init__(self, type, url, token='', name='', claim='', model=''):
         self.type = type
         self.url = url
@@ -114,8 +113,24 @@ class TempDevice():
         models = {x: len(device_table[x]['properties'])for x in data['@type']}
         self.model = max(models, key=models.get)
 
-        property_types = [data['properties'][x]['@type']
-                          for x in data['properties'].keys()]
+        property_types = {key: value['@type']
+                          for key, value in data['properties'].items()}
+
+        self.properties = {}
+        property_cnt_dict = {}
+        for key, value in property_types.items():
+            property = device_table[self.model]['properties'][value]
+            property_cnt = property_cnt_dict.get(value, 0)
+
+            self.properties[key] = {
+                'property': value,
+                'idf': property['idf'][property_cnt] if property_cnt < len(property['idf']) else None,
+                'odf': property['odf'][property_cnt] if property_cnt < len(property['odf']) else None
+            }
+
+            property_cnt_dict[value] = property_cnt + 1
+
+        print(self.properties)
 
     def _get_gateway_device_info(self):
         url = '{0}/things/'.format(self.url.rstrip('/'))
@@ -139,16 +154,11 @@ class TempDevice():
             property = device_table[self.model]['properties'][value]
             property_cnt = property_cnt_dict.get(value, 0)
 
-            if property['read_only']:
-                self.properties[key] = {
-                    'property': value,
-                    'df': property['idf'][property_cnt]
-                }
-            else:
-                self.properties[key] = {
-                    'property': value,
-                    'df': '{0}, {1}'.format(property['idf'][property_cnt], property['odf'][property_cnt])
-                }
+            self.properties[key] = {
+                'property': value,
+                'idf': property['idf'][property_cnt] if property_cnt < len(property['idf']) else None,
+                'odf': property['odf'][property_cnt] if property_cnt < len(property['odf']) else None
+            }
 
             property_cnt_dict[value] = property_cnt + 1
 
@@ -162,7 +172,7 @@ class _DeviceHander():
 
         devices = list(Device.objects.all())
         for d in devices:
-            self._user_temp_device[d.user_id] = TempDevice(
+            self._user_temp_device[d.user_id] = _Device(
                 d.type, d.url, d.token, d.name, d.claim, model=d.model)
             self.create_device(d.user_id)
 
@@ -173,7 +183,7 @@ class _DeviceHander():
             raise KeyError(
                 'User %s has already created temp device.' % username)
 
-        self._user_temp_device[user_id] = TempDevice(
+        self._user_temp_device[user_id] = _Device(
             type, url, token, name, claim, model)
 
     def delete_temp_device(self, user_id):
@@ -185,7 +195,7 @@ class _DeviceHander():
         self._user_temp_device[user_id].select_device = select_device
 
     def get_temp_device(self, user_id):
-        return self._user_temp_device.get(user_id, TempDevice('native', ''))
+        return self._user_temp_device.get(user_id, _Device('native', ''))
 
     def check_device_name_existed(self, user_id, name):
         return Device.objects.filter(user_id=user_id, name=name).count() > 0
@@ -225,7 +235,7 @@ class _DeviceHander():
             )
             for key, value in temp_dev.properties.items():
                 dev.property.create(
-                    name=key, property=value['property'], df=value['df'])
+                    name=key, property=value['property'], idf=value['idf'], odf=value['odf'])
         else:
             dev.start_time = datetime.now()
 
