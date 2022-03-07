@@ -27,24 +27,24 @@
           {% for value in user_devices %}
             <div class="manage-content">
               <div class="do-container">
-                <div class="do-header" style="height: 55px">
+                <div class="do-header" style="height: 40px">
                   <form class="form-inline" method="post" action="/delete">
                     {% csrf_token %}
                     <input type="hidden" name="key" value={{ value.name }}>
-                    <div class="do-setting" style="height: 55px">
+                    <div class="do-setting" style="height: 40px">
                       <button class="do-setting-img btn" type="submit">
-                        <i class="fas fa-trash fa-2x"></i>
+                        <i class="fas fa-trash"></i>
                       </button>
                     </div>
                   </form>
-                  <div class="do-device" style="height: 55px">
-                    <span class="device-name" style="line-height: 55px">{{ value.name }} ({{ value.model }})</span>
+                  <div class="do-device">
+                    <span class="device-name" style="line-height: 40px">{{ value.name }} ({{ value.model }})</span>
                   </div>
                 </div>
                 <div class="do-content">
-                  {% for df in value.property.all %}
-                  <div class="col dfo-container" style="height: 55px">
-                    <label class="dfo-name" style="line-height: 51px">{{ df.property }}</label>
+                  {% for val in value.property.all %}
+                  <div class="col dfo-container">
+                    <label class="dfo-name">{{ val.name }}: {{ val.property }} ({{ val.df }})</label>
                   </div>
                   {% endfor %}
                 </div>
@@ -108,26 +108,26 @@
           <div class="col-sm-2">{{ form.claim }}</div>
         </div>
 
-        {% if temp_device.property_use|length > 0 %}
+        {% if temp_device.properties|length > 0 %}
         <div class="mb-2">
           <label class="content-title">Device Feature</label>
           
           <table class="manage-info-container">
             <thead>
-              <td>Feature</td>
-              <td>Enable</td>
+              <td style="width: 30%;">Name</td>
+              <td>Property (Device Feature)</td>
             </thead>
             <tbody>
-              {% for key, value in temp_device.property_use.items %}
+              {% for key, value in temp_device.properties.items %}
               <tr>
-                <td valign="top">
+                <td valign="center">
                   <div class="model-df-list-container">
                     {{ key }}
                   </div>
                 </td>
-                <td valign="top">
+                <td valign="center">
                   <div class="model-df-list-container">
-                    <input type="checkbox" id="flexCheckDefault" {% if value %} checked {% endif %} disabled>
+                    {{ value.property }} ({{ value.df }})
                   </div>
                 </td>
               </tr>

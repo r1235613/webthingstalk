@@ -1,13 +1,55 @@
 import json
+from operator import mod
 import requests
 import iottalk_webthing
 from datetime import datetime
 
 from .models import User, Device
 
-device_table = {'Light': {'properties': ['OnOffProperty', 'BrightnessProperty', 'ColorModeProperty', 'ColorProperty', 'ColorTemperatureProperty'], 'module': iottalk_webthing.Light},
-                'OnOffSwitch': {'properties': ['OnOffProperty', ], 'module': iottalk_webthing.OnOffSwitch},
-                'PushButton': {'properties': ['PushedProperty'], 'module': iottalk_webthing.PushButton}}
+device_table = {
+    'Light': {
+        'properties': {
+            'OnOffProperty': {'idf': ['OnOff-I'], 'odf': ['OnOff-O'], 'read_only': False},
+            'BrightnessProperty': {'idf': ['Brightness-I'], 'odf': ['Brightness-O'], 'read_only': False},
+            'ColorModeProperty': {'idf': ['ColorMode-I'], 'read_only': True},
+            'ColorProperty': {'idf': ['Color-I'], 'odf': ['Color-O'], 'read_only': False},
+            'ColorTemperatureProperty': {
+                'idf': ['ColorTemp-I'],
+                'odf': ['ColorTemp-O'],
+                'read_only': False
+            },
+        },
+        'device_model': 'WT_Light',
+        'module': iottalk_webthing.Light,
+    },
+    'OnOffSwitch': {
+        'properties': {'OnOffProperty': {'idf': ['OnOff-I'], 'odf': ['OnOff-O'], 'read_only': False}},
+        'device_model': 'WT_OnOffSwitch',
+        'module': iottalk_webthing.OnOffSwitch,
+    },
+    'ColorControl': {
+        'properties': {
+            'ColorModeProperty': {'idf': ['ColorMode-I'], 'read_only': True},
+            'ColorProperty': {'idf': ['Color-I'], 'odf': ['Color-O'], 'read_only': False},
+            'ColorTemperatureProperty': {
+                'idf': ['ColorTemp-I'],
+                'odf': ['ColorTemp-O'],
+                'read_only': False
+            },
+        },
+        'device_model': 'WT_ColorControl',
+        'module': iottalk_webthing.OnOffSwitch,
+    },
+    'PushButton': {
+        'properties': {
+            'PushedProperty': {
+                'idf': ['Pushed-I1', 'Pushed-I2', 'Pushed-I3', 'Pushed-I4'], 'read_only': True
+            },
+        },
+        'device_model': 'WT_PushButton',
+        'module': iottalk_webthing.PushButton,
+    },
+}
 
 
 class TempDevice():
@@ -22,7 +64,7 @@ class TempDevice():
         self.device_list = {}
         self.select_device = None
 
-        self.property_use = {}
+        self.properties = {}
 
         self.checked = False
         self.connected = False
@@ -31,7 +73,7 @@ class TempDevice():
         return json.dumps(self.to_dict())
 
     def to_dict(self):
-        return {'type': self.type, 'url': self.url, 'token': self.token, 'name': self.name, 'claim': self.claim, 'model': self.model, 'property_use': self.property_use, 'device_list': self.device_list, 'select_device': self.select_device, 'checked': self.checked, 'connected': self.connected}
+        return {'type': self.type, 'url': self.url, 'token': self.token, 'name': self.name, 'claim': self.claim, 'model': self.model, 'properties': self.properties, 'device_list': self.device_list, 'select_device': self.select_device, 'checked': self.checked, 'connected': self.connected}
 
     def get_gateway_device(self):
         if self.type != 'gateway':
@@ -69,15 +111,11 @@ class TempDevice():
         data = r.json()
 
         # 選擇最多屬性的裝置
-        models = {x: len(device_table[x]['properties'])
-                  for x in data['@type']}
+        models = {x: len(device_table[x]['properties'])for x in data['@type']}
         self.model = max(models, key=models.get)
 
         property_types = [data['properties'][x]['@type']
                           for x in data['properties'].keys()]
-
-        self.property_use = {
-            x: x in property_types for x in device_table[self.model]['properties']}
 
     def _get_gateway_device_info(self):
         url = '{0}/things/'.format(self.url.rstrip('/'))
@@ -88,13 +126,33 @@ class TempDevice():
 
         device = list(
             filter(lambda x: x['title'] == self.select_device, data))[0]
-        self.model = device['selectedCapability']
+        models = {x: len(device_table[x]['properties'])
+                  for x in device['@type']}
+        self.model = max(models, key=models.get)
 
-        property_types = [device['properties'][x]['@type']
-                          for x in device['properties'].keys()]
+        property_types = {key: value['@type']
+                          for key, value in device['properties'].items()}
 
-        self.property_use = {
-            x: x in property_types for x in device_table[self.model]['properties']}
+        self.properties = {}
+        property_cnt_dict = {}
+        for key, value in property_types.items():
+            property = device_table[self.model]['properties'][value]
+            property_cnt = property_cnt_dict.get(value, 0)
+
+            if property['read_only']:
+                self.properties[key] = {
+                    'property': value,
+                    'df': property['idf'][property_cnt]
+                }
+            else:
+                self.properties[key] = {
+                    'property': value,
+                    'df': '{0}, {1}'.format(property['idf'][property_cnt], property['odf'][property_cnt])
+                }
+
+            property_cnt_dict[value] = property_cnt + 1
+
+        print(self.properties)
 
 
 class _DeviceHander():
@@ -165,10 +223,9 @@ class _DeviceHander():
                 claim=temp_dev.claim,
                 start_time=datetime.now()
             )
-            for x in temp_dev.property_use.items():
-                print(x)
-                if x[1]:
-                    dev.property.create(property=x[0])
+            for key, value in temp_dev.properties.items():
+                dev.property.create(
+                    name=key, property=value['property'], df=value['df'])
         else:
             dev.start_time = datetime.now()
 

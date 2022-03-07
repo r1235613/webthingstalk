@@ -60,7 +60,7 @@ tbody > td > tr {
 }
 
 .do-header {
-  height: 7%;
+  height: 5%;
 }
 
 .do-setting {
@@ -69,16 +69,10 @@ tbody > td > tr {
   border-right: 2px solid;
 }
 
-.do-setting-img {
-  cursor: pointer;
-  height: 100%;
-}
-
 .do-device {
   float: left;
   width: 75%;
   overflow: hidden;
-  cursor: pointer;
 }
 
 .device-name {
@@ -98,27 +92,17 @@ tbody > td > tr {
 }
 
 .dfo-container {
-  box-shadow: 4px 4px 3px rgba(20%, 20%, 40%, 0.5);
-  border-radius: 8px;
+  box-shadow: 2px 2px 1.5px rgba(20%, 20%, 40%, 0.5);
+  border-radius: 4px;
   border: 2px solid;
-  margin: 2%;
-  cursor: pointer;
+  margin: 1%;
   overflow: hidden;
 }
 
 .dfo-name {
   width: 75%;
+  margin: 0;
   font-weight: normal;
-  cursor: pointer;
-  overflow: hidden;
-}
-
-.dfo-image[df_type="input"] {
-  float: right;
-}
-
-.dfo-image[df_type="output"] {
-  float: left;
 }
 /*== do end ==*/
 
@@ -168,17 +152,6 @@ label {
   text-align: center;
   margin-top: 4%;
 }
-
-/* .manage-content {
-  margin-left: 5%;
-  margin-right: 5%;
-  margin-bottom: 1%;
-} */
-
-/* .content-title {
-  margin-right: 10px;
-} */
-
 
 .model-df-list-container {
   max-height: 120px;
