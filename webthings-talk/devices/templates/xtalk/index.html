@@ -44,7 +44,7 @@
                 <div class="do-content">
                   {% for val in value.property.all %}
                   <div class="col dfo-container">
-                    <label class="dfo-name">{{ val.name }}: {{ val.property }} ({{ val.idf }}, {{ val.odf }})</label>
+                    <label class="dfo-name">{{ val.name }}: {{ val.property }} (IDF: {{ val.idf }}{% if val.odf != None %}, ODF: {{val.odf }}{% endif %})</label>
                   </div>
                   {% endfor %}
                 </div>
@@ -72,7 +72,7 @@
           <div class="col-sm-6">{{ form.url }}</div>
           {% comment %} <input class="col-sm-6" type="text" name="url" placeholder="http://192.168.0.100:8888" value="{{ temp_device.url }}" /> {% endcomment %}
           <div class="col-sm-2">
-            <button id="check_button" type="submit" class="btn btn-primary btn-sm" formaction="/check-native-device" disabled>Check</button>
+            <button id="check_button" type="submit" class="btn btn-primary btn-sm" formaction="/check-native-device" disabled>Connect</button>
             <button id="get_token_button" type="button" class="btn btn-primary btn-sm" style="display:none" disabled onclick="openGetTokenLink()">Get Token</button>
           </div>
           <div class="col-sm-1">
@@ -94,7 +94,7 @@
           <div class="row mb-2 align-items-center">
             <label class="col-sm-2">Gateway Device</label>
             <div class="col-sm-6">{{ form.select_device }}</div>
-            <div class="col-sm-2"><button id="check_button" type="submit" class="btn btn-primary btn-sm" formaction="/check-gateway-device">Check</button></div>
+            <div class="col-sm-2"><button id="check_button" type="submit" class="btn btn-primary btn-sm" formaction="/check-gateway-device">Connect</button></div>
           </div>
         {% endif %}
 
@@ -104,7 +104,7 @@
         </div>
 
         <div class="row mb-2 align-items-center">
-          <label class="col-sm-2">Claim</label>
+          <label class="col-sm-2">Private</label>
           <div class="col-sm-2">{{ form.claim }}</div>
         </div>
 
@@ -127,7 +127,7 @@
                 </td>
                 <td valign="center">
                   <div class="model-df-list-container">
-                    {{ value.property }} ({{ value.idf }}, {{ value.odf }})
+                    {{ value.property }} (IDF: {{ value.idf }}{% if value.odf != None %}, ODF: {{value.odf }}{% endif %})
                   </div>
                 </td>
               </tr>

@@ -1,6 +1,6 @@
 from django import forms
 
-TYPE_CHOICES = [('native', 'Native WebThing Device'),
+TYPE_CHOICES = [('native', 'Native WebThings Device'),
                 ('gateway', 'WebThings Gateway Device')]
 
 
