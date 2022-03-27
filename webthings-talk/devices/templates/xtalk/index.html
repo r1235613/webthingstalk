@@ -38,7 +38,7 @@
                     </div>
                   </form>
                   <div class="do-device">
-                    <span class="device-name" style="line-height: 40px">{{ value.name }} ({{ value.model }})</span>
+                    <span class="device-name" style="line-height: 40px">{{ value.name }} (DM: WT_{{ value.model }})</span>
                   </div>
                 </div>
                 <div class="do-content">
@@ -103,10 +103,17 @@
           <div class="col-sm-6">{{ form.name }}</div>
         </div>
 
-        <div class="row mb-2 align-items-center">
+        {% comment %} <div class="row mb-2 align-items-center">
           <label class="col-sm-2">Private</label>
           <div class="col-sm-2">{{ form.claim }}</div>
+        </div> {% endcomment %}
+        
+        {% if temp_device.model != '' %}
+        <div class="row mb-2 align-items-center">
+          <label class="col-sm-2">Device Model</label>
+          <label class="col-sm-6">WT_{{ temp_device.model }}</label>
         </div>
+        {% endif %}
 
         {% if temp_device.properties|length > 0 %}
         <div class="mb-2">
