@@ -20,8 +20,8 @@ class DeviceForm(forms.Form):
         attrs={'aria-label': 'Gateway Device'}))
     name = forms.CharField(label='name', required=False, widget=forms.TextInput(
         attrs={'placeholder': 'Light1, OnOffSwith2 ...', 'size': 64, 'aria-label': 'Device Device'}))
-    claim = forms.BooleanField(label='claim', required=False,
-                               widget=forms.CheckboxInput(attrs={'aria-label': 'Claim'}))
+    # claim = forms.BooleanField(label='claim', required=False,
+    #                            widget=forms.CheckboxInput(attrs={'aria-label': 'Claim'}))
 
     def __init__(self, *args, **kwargs):
         device_choices = kwargs.pop('device_choices', [])
