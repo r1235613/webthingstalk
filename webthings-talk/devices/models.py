@@ -25,7 +25,7 @@ class DeviceUrl(models.Model):
     url = models.TextField(blank=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
-    creat_time = models.DateTimeField(auto_now_add=True)
+    create_time = models.DateTimeField(auto_now_add=True)
 
 
 class Device(models.Model):
