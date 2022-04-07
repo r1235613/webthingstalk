@@ -7,14 +7,18 @@ app_name = 'xtalk_template'
 
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
-    path('check-native-device', views.NativeDeviceCheckView.as_view(),
-         name='native_device_check_endpoint'),
+    path('device-base', views.DeviceBaseView.as_view(),
+         name='device_base_endpoint'),
+    path('connect-native-device', views.ConnectNativeDeviceView.as_view(),
+         name='native_device_connect_endpoint'),
     path('connect-gateway', views.ConnectGatewayView.as_view(),
          name='connect_gateway_endpoint'),
+    path('delete-native-device-url', views.DeleteNativeDeviceUrlView.as_view(),
+         name='delete_native_device_url'),
     path('check-gateway-device', views.GatewayDeviceCheckView.as_view(),
          name='gateway_device_check_endpoint'),
-    path('add', views.DeviceAddView.as_view(), name='device_add_endpoint'),
-    path('delete', views.DeviceDeleteView.as_view(),
+    path('add', views.AddDeviceView.as_view(), name='device_add_endpoint'),
+    path('delete', views.DeleteDeviceView.as_view(),
          name='device_delete_endpoint'),
     path('auth', AuthRedirectionView.as_view(), name='auth_redirect_endpoint'),
     path(
@@ -22,5 +26,5 @@ urlpatterns = [
         AuthCallbackView.as_view(),
         name='oauth2_redirect_endpoint'
     ),
-    path('logout', LogoutView.as_view(), name='logout_endpoint'),
+    path('logout', LogoutView.as_view(), name='logout_endpoint')
 ]

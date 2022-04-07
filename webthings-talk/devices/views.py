@@ -1,21 +1,12 @@
-from operator import mod
-from django.shortcuts import render
-
-from django.http import HttpResponse, request
-from django.http import JsonResponse
-from django.http import HttpResponseRedirect
-from django.views import View
-from django.views.generic.base import TemplateView
-from django.views.generic.edit import FormView
+from datetime import datetime
 
 from django.contrib import messages
-
+from django.views.generic.edit import FormView
 
 from xtalk_template.views import IndexView
 
 from .forms import DeviceForm, DeviceDeleteForm
-
-from .models import User, Device
+from .models import User, Device, DeviceUrl
 from .device import device_handler
 
 
@@ -28,31 +19,31 @@ class IndexView(IndexView):
 
         if self.request.user.username == '':
             return context
+
         user_id = User.objects.get(username=self.request.user.username).id
 
         context['temp_device'] = device_handler.get_temp_device(user_id)
-        context['user_devices'] = Device.objects.filter(
-            user_id=user_id).all()
+        context['user_devices'] = Device.objects.filter(user_id=user_id).all()
 
-        print('temp_device', context['temp_device'])
+        native_urls = [(x['url'], x['url'])
+                       for x in DeviceUrl.objects.filter(user_id=user_id).values()]
 
         context['form'] = DeviceForm(
-            device_choices=[
-                (name, name) for name, _ in context['temp_device'].device_list.items()],
-            name_required=context['temp_device'].checked,
+            native_url_choices=[
+                ('', 'select...'), ('add', 'Add new device'), *native_urls],
+            # device_choices=[
+            #     (name, name) for name, _ in context['temp_device'].device_list.items()],
             initial={
-                'type': context['temp_device'].type,
-                'url': context['temp_device'].url,
-                'token': context['temp_device'].token,
-                'select_device': context['temp_device'].select_device,
-                'name': context['temp_device'].name,
-                'claim': context['temp_device'].claim
-            })
+                'device_model': context['temp_device'].device_model,
+                'device_base': context['temp_device'].device_base,
+                'native_url_list': context['temp_device'].device_url,
+            }
+        )
 
         return context
 
 
-class NativeDeviceCheckView(FormView):
+class DeviceBaseView(FormView):
     template_name = 'xtalk/index.html'
     form_class = DeviceForm
     success_url = '/'
@@ -60,20 +51,75 @@ class NativeDeviceCheckView(FormView):
     def form_valid(self, form):
         user_id = User.objects.get(username=self.request.user.username).id
 
-        url = form.data.get('url', '')
-        name = form.data.get('name', '')
-        claim = form.data.get('claim', '')
+        device_model = form.data.get('device_model', '')
+        device_base = form.data.get('device_base', 'gateway')
 
         device_handler.delete_temp_device(user_id)
+        device_handler.create_temp_device(user_id, device_model, device_base)
+
+        return super().form_valid(form)
+
+
+class ConnectNativeDeviceView(FormView):
+    template_name = 'xtalk/index.html'
+    form_class = DeviceForm
+    success_url = '/'
+
+    def _check_device_url_exist(self,  device_url):
+        return len(DeviceUrl.objects.filter(url=device_url, user_id=self.user_id)) >= 1
+
+    def form_valid(self, form):
+        self.user_id = User.objects.get(username=self.request.user.username).id
+
+        device_model = form.data.get('device_model', '')
+        device_base = form.data.get('device_base', 'gateway')
+
+        if form.data['native_url_list'] == 'add':
+            device_url = form.data['native_device_url'].rstrip('/')
+        else:
+            device_url = form.data['native_url_list']
+
+        device_handler.delete_temp_device(self.user_id)
         device_handler.create_temp_device(
-            user_id, 'native', url, '', name, claim)
+            self.user_id, device_model, device_base, device_url)
 
         try:
-            device_handler.temp_device_get_info(user_id)
-        except:
+            device_handler.temp_device_get_info(self.user_id)
+        except RuntimeError:
+            device_handler.delete_temp_device(self.user_id)
+            device_handler.create_temp_device(
+                self.user_id, device_model, device_base)
             messages.error(
-                self.request, 'Connection failed, please check Device Type and URL.')
+                self.request, 'Connection failed, please check Device URL.')
             return super().form_valid(form)
+        except ValueError:
+            temp_device_model = device_handler.get_temp_device(
+                self.user_id).device_model
+            messages.warning(
+                self.request, 'Device Model mismatch, the device is WT_{0}.'.format(temp_device_model))
+
+        if form.data['native_url_list'] == 'add' and not self._check_device_url_exist(device_url):
+            dev = DeviceUrl.objects.create(
+                url=device_url,
+                user_id=self.user_id,
+                create_time=datetime.now()
+            )
+
+        return super().form_valid(form)
+
+
+class DeleteNativeDeviceUrlView(FormView):
+    template_name = 'xtalk/index.html'
+    form_class = DeviceForm
+    success_url = '/'
+
+    def form_valid(self, form):
+        user_id = User.objects.get(username=self.request.user.username).id
+
+        device_url = form.data.get('native_url_list', '')
+        DeviceUrl.objects.filter(url=device_url, user_id=user_id).delete()
+
+        device_handler.delete_temp_device(user_id)
 
         return super().form_valid(form)
 
@@ -90,11 +136,10 @@ class ConnectGatewayView(FormView):
         url = form.data.get('url', '')
         token = form.data.get('token', '')
         name = form.data.get('name', '')
-        claim = form.data.get('claim', '')
 
         device_handler.delete_temp_device(user_id)
         device_handler.create_temp_device(
-            user_id, 'gateway', url, token, name, claim)
+            user_id, 'gateway', url, token, name)
 
         try:
             device_handler.temp_device_get_gateway_device(user_id)
@@ -115,48 +160,46 @@ class GatewayDeviceCheckView(FormView):
         user_id = User.objects.get(username=self.request.user.username).id
 
         name = form.data.get('name', '')
-        claim = form.data.get('claim', '')
         select_device = form.data.get('select_device', '')
 
-        device_handler.update_temp_device(user_id, name, claim, select_device)
+        device_handler.update_temp_device(user_id, name, select_device)
         device_handler.temp_device_get_info(user_id)
 
         return super().form_valid(form)
 
 
-class DeviceAddView(FormView):
+class AddDeviceView(FormView):
     template_name = 'xtalk/index.html'
     form_class = DeviceForm
     success_url = '/'
 
+    def _check_device_exist(self, device_name):
+        return len(Device.objects.filter(device_name=device_name, user_id=self.user_id)) >= 1
+
     def form_valid(self, form):
-        user_id = User.objects.get(username=self.request.user.username).id
-        temp_dev = device_handler.get_temp_device(user_id)
+        self.user_id = User.objects.get(username=self.request.user.username).id
 
-        name = form.data.get('name', '')
-        claim = form.data.get('claim', '')
-        model = temp_dev.model
+        temp_device_name = device_handler.get_temp_device(
+            self.user_id).device_name
 
-        if device_handler.check_device_name_existed(user_id, name):
+        if self._check_device_exist(temp_device_name):
             messages.error(
-                self.request, 'Device name {0} already exists!'.format(form.data.get('name', '')))
-            return super().form_valid(form)
-
-        device_handler.update_temp_device(user_id, name, claim, model)
-        device_handler.create_device(user_id)
+                self.request, 'Device {0} already exists!'.format(temp_device_name))
+        else:
+            device_handler.create_device(self.user_id)
 
         return super().form_valid(form)
 
 
-class DeviceDeleteView(FormView):
+class DeleteDeviceView(FormView):
     template_name = 'xtalk/index.html'
     form_class = DeviceDeleteForm
     success_url = '/'
 
     def form_valid(self, form):
         user_id = User.objects.get(username=self.request.user.username).id
-        name = form.data.get('key', '')
+        device_name = form.data.get('device_name', '')
 
-        device_handler.delete_device(user_id, name)
+        device_handler.delete_device(user_id, device_name)
 
         return super().form_valid(form)

@@ -30,7 +30,7 @@
                 <div class="do-header" style="height: 40px">
                   <form class="form-inline" method="post" action="/delete">
                     {% csrf_token %}
-                    <input type="hidden" name="key" value={{ value.name }}>
+                    <input type="hidden" name="device_name" value="{{ value.device_name }}">
                     <div class="do-setting" style="height: 40px">
                       <button class="do-setting-img btn" type="submit">
                         <i class="fas fa-trash"></i>
@@ -38,14 +38,14 @@
                     </div>
                   </form>
                   <div class="do-device">
-                    <span class="device-name" style="line-height: 40px">{{ value.name }} (DM: WT_{{ value.model }})</span>
+                    <span class="device-name" style="line-height: 40px">{{ value.device_name }} (DM: WT_{{ value.device_model }})</span>
                   </div>
                 </div>
                 <div class="do-content">
                   {% for val in value.property.all %}
-                  <div class="col dfo-container">
-                    <label class="dfo-name">{{ val.name }}: {{ val.property }} (IDF: {{ val.idf }}{% if val.odf != None %}, ODF: {{val.odf }}{% endif %})</label>
-                  </div>
+                    <div class="col dfo-container">
+                      <label class="dfo-name">{{ val.name }}: {{ val.property }} (IDF: {{ val.idf }}{% if val.odf != None %}, ODF: {{val.odf }}{% endif %})</label>
+                    </div>
                   {% endfor %}
                 </div>
               </div>
@@ -57,95 +57,90 @@
   </div>
 
   <div id="right-window" class="col-sm-6" style="min-height: 766px">
-      <label class="management-title mb-2">Add Device</label>
+      <label class="management-title mb-2">Create IoTtalk Device</label>
       {% if user.is_authenticated %}
-      <form class="form-inline" method="post">
+      <form class="form-inline" method="post" id="create_iottalk_device_form">
         {% csrf_token %}
 
-        <div class="row mb-2 align-items-center" id="type_block">
-          <label class="col-sm-2">Device Type</label>
-          <div class="col-sm-6">{{ form.type }}</div>
+        <div class="row mb-2 align-items-center" id="device_model_block">
+          <label class="col-sm-3">Device Model</label>
+          <div class="col-sm-6">{{ form.device_model }}</div>
         </div>
 
-        <div class="row mb-2 align-items-center" id="url_block">
-          <label class="col-sm-2">Device URL</label>
-          <div class="col-sm-6">{{ form.url }}</div>
-          {% comment %} <input class="col-sm-6" type="text" name="url" placeholder="http://192.168.0.100:8888" value="{{ temp_device.url }}" /> {% endcomment %}
-          <div class="col-sm-2">
-            <button id="check_button" type="submit" class="btn btn-primary btn-sm" formaction="/check-native-device" disabled>Connect</button>
-            <button id="get_token_button" type="button" class="btn btn-primary btn-sm" style="display:none" disabled onclick="openGetTokenLink()">Get Token</button>
+        <div class="row mb-2 align-items-center" id="device_base_block">
+          <label class="col-sm-3">Gateway or Native Base</label>
+          <div class="col-sm-6">{{ form.device_base }}</div>
+        </div>
+
+        {% if temp_device.device_base == 'native' %}
+          <div class="row mb-2 align-items-center" id="native_url_list_block">
+            <label class="col-sm-3">Device URL List</label>
+            <div class="col-sm-6">{{ form.native_url_list }}</div>
+            <div class="col-sm-1">
+              <button id="delete_native_device_url_button" type="submit" class="btn btn-danger btn-sm" formaction="/delete-native-device-url" style="display:none">Delete</button>
+            </div>
           </div>
-          <div class="col-sm-1">
-            {% if temp_device.type == 'native' and temp_device.checked and temp_device.connected %}
-              <i class="far fa-check-circle fa-2x"></i>
-            {% elif temp_device.type == 'native' and temp_device.checked and not temp_device.connected %}
-              <i class="fas fa-exclamation-circle fa-2x"></i>
-            {% endif %}
+
+          <div class="row mb-2 align-items-center" id="native_device_url_block" style="display:none">
+            <label class="col-sm-3"></label>
+            <div class="col-sm-6">{{ form.native_device_url }}</div>
+            <div class="col-sm-2">
+              <button id="connect_native_device_button" type="submit" class="btn btn-primary btn-sm" formaction="/connect-native-device">Add</button>
+            </div>
           </div>
-        </div>
-
-        <div class="row mb-2 align-items-center" id="token_block" style="display:none">
-          <label class="col-sm-2">Gateway Token</label>
-          <div class="col-sm-6">{{ form.token }}</div>
-          <div class="col-sm-2"><button id="check_gateway_button" type="submit" class="btn btn-primary btn-sm" formaction="/connect-gateway" disabled>Connect</button></div>
-        </div>
-
-        {% if temp_device.type == "gateway" and temp_device.connected_gateway %}
-          <div class="row mb-2 align-items-center">
-            <label class="col-sm-2">Gateway Device</label>
-            <div class="col-sm-6">{{ form.select_device }}</div>
-            <div class="col-sm-2"><button id="check_button" type="submit" class="btn btn-primary btn-sm" formaction="/check-gateway-device">Connect</button></div>
-          </div>
-        {% endif %}
-
-        <div class="row mb-2 align-items-center">
-          <label class="col-sm-2">Device Name</label>
-          <div class="col-sm-6">{{ form.name }}</div>
-        </div>
-
-        {% comment %} <div class="row mb-2 align-items-center">
-          <label class="col-sm-2">Private</label>
-          <div class="col-sm-2">{{ form.claim }}</div>
-        </div> {% endcomment %}
-        
-        {% if temp_device.model != '' %}
-        <div class="row mb-2 align-items-center">
-          <label class="col-sm-2">Device Model</label>
-          <label class="col-sm-6">WT_{{ temp_device.model }}</label>
-        </div>
-        {% endif %}
-
-        {% if temp_device.properties|length > 0 %}
-        <div class="mb-2">
-          <label class="content-title">Device Feature</label>
           
-          <table class="manage-info-container">
-            <thead>
-              <td style="width: 30%;">Name</td>
-              <td>Property (IDF, ODF)</td>
-            </thead>
-            <tbody>
-              {% for key, value in temp_device.properties.items %}
-              <tr>
-                <td valign="center">
-                  <div class="model-df-list-container">
-                    {{ key }}
-                  </div>
-                </td>
-                <td valign="center">
-                  <div class="model-df-list-container">
-                    {{ value.property }} (IDF: {{ value.idf }}{% if value.odf != None %}, ODF: {{value.odf }}{% endif %})
-                  </div>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+          {% if temp_device.connected %}
+            <div class="row mb-2 align-items-center" id="device_name_block">
+              <label class="col-sm-3">Device Name</label>
+              <div class="col-sm-6">{{ temp_device.device_name }}</div>
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="row mb-2 align-items-center" id="token_block" style="display:none">
+            <label class="col-sm-3">Gateway Token</label>
+            <div class="col-sm-6">{{ form.token }}</div>
+            <div class="col-sm-2"><button id="check_gateway_button" type="submit" class="btn btn-primary btn-sm" formaction="/connect-gateway" disabled>Connect</button></div>
+          </div>
+
+          {% if temp_device.type == "gateway" and temp_device.connected_gateway %}
+            <div class="row mb-2 align-items-center">
+              <label class="col-sm-3">Gateway Device</label>
+              <div class="col-sm-6">{{ form.select_device }}</div>
+              <div class="col-sm-2"><button id="check_button" type="submit" class="btn btn-primary btn-sm" formaction="/check-gateway-device">Connect</button></div>
+            </div>
+          {% endif %}
+        {% endif %}
+        
+        {% if temp_device.properties|length > 0 %}
+          <div class="mb-2">
+            <label class="content-title">Device Feature</label>
+            <table class="manage-info-container">
+              <thead>
+                <td style="width: 30%;">Name</td>
+                <td>Property (IDF, ODF)</td>
+              </thead>
+              <tbody>
+                {% for key, value in temp_device.properties.items %}
+                  <tr>
+                    <td valign="center">
+                      <div class="model-df-list-container">
+                        {{ key }}
+                      </div>
+                    </td>
+                    <td valign="center">
+                      <div class="model-df-list-container">
+                        {{ value.property }} (IDF: {{ value.idf }}{% if value.odf != None %}, ODF: {{value.odf }}{% endif %})
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         {% endif %}
 
         <div class="manage-info-container ">
-          <button type="submit" formaction="/add" id="model-save" {% if not temp_device.checked or not temp_device.connected %} disabled {% endif %}>Save</button>
+          <button type="submit" formaction="/add" id="model-save" {% if not temp_device.connected %} disabled {% endif %}>Save</button>
         </div>
       </form>
       {% endif %}
@@ -154,43 +149,62 @@
 </div>
 
 <script>
-  function showGatewayBlock() {
-    type = document.getElementById("id_type").value
-    if (type == "native") {
-      document.getElementById("url_block").getElementsByTagName("label")[0].innerHTML="Device URL";
-      document.getElementById("token_block").style.display = "none";
-      // document.getElementById("id_token").required = false;
-
-      document.getElementById("check_button").style.display = "";
-      document.getElementById("get_token_button").style.display = "none";
-    } else {
-      document.getElementById("url_block").getElementsByTagName("label")[0].innerHTML="Gateway URL";
-      document.getElementById("token_block").style.display = "";
-      // document.getElementById("id_token").required = true;
-
-      document.getElementById("check_button").style.display = "none";
-      document.getElementById("get_token_button").style.display = "";
-    }
-  }
-
   function openGetTokenLink() {
     const url = new URL("/oauth/authorize?response_type=code&client_id=local-token&scope=/things:readwrite", document.getElementById("id_url").value);
     window.open(url.href, "_blank");
   }
   
+  function showNativeDeviceUrlBlock() {
+    const nativeDeviceUrlBlock = document.getElementById("native_device_url_block");
+    nativeDeviceUrlBlock.style.display="";
+  }
+
+  function hiddenNativeDeviceUrlBlock() {
+    const nativeDeviceUrlBlock = document.getElementById("native_device_url_block");
+    nativeDeviceUrlBlock.style.display="none";
+  }
+
+  function showDeleteNativeDeviceUrlButton() {
+    const deleteNativeDeviceUrlButton = document.getElementById("delete_native_device_url_button");
+    deleteNativeDeviceUrlButton.style.display="";
+  }
+
+  function hiddenDeleteNativeDeviceUrlButton() {
+    const deleteNativeDeviceUrlButton = document.getElementById("delete_native_device_url_button");
+    deleteNativeDeviceUrlButton.style.display="none";
+  }
+
+  function submitCreateDeviceForm() {
+    const form = document.getElementById("create_iottalk_device_form");
+    form.action="/connect-native-device";
+    form.submit();
+  }
+
+  function checkNativeUrlListAdd() {
+    const nativeUrlList = document.getElementById("id_native_url_list");
+    if (nativeUrlList.options[nativeUrlList.selectedIndex].value == "add") {
+      showNativeDeviceUrlBlock();
+      hiddenDeleteNativeDeviceUrlButton();
+    } else {
+      hiddenNativeDeviceUrlBlock();
+      showDeleteNativeDeviceUrlButton();
+      submitCreateDeviceForm();
+    }
+  }
+
+  function checkNativeUrlListDelete() {
+    const nativeUrlList = document.getElementById("id_native_url_list");
+    const optionValue = nativeUrlList.options[nativeUrlList.selectedIndex].value;
+    if (optionValue != "add" && optionValue != '') {
+      showDeleteNativeDeviceUrlButton();
+    } else {
+      hiddenDeleteNativeDeviceUrlButton();
+    }
+  }
+
   function init() {
-    const url_input = document.getElementById("id_url");
-    url_input.addEventListener("input", (event) => {
-      document.getElementById("check_button").disabled = url_input.value === "";
-      document.getElementById("get_token_button").disabled = url_input.value === "";
-    });
-
-    const token_input = document.getElementById("id_token");
-    token_input.addEventListener("input", (event) => {
-      document.getElementById("check_gateway_button").disabled = token_input.value === "";
-    });
-
-    showGatewayBlock();
+    checkNativeUrlListDelete();
+    document.getElementById("id_native_url_list").addEventListener("change", checkNativeUrlListAdd);    
   }
 
   window.onload = init;

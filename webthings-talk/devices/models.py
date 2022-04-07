@@ -29,15 +29,14 @@ class DeviceUrl(models.Model):
 
 
 class Device(models.Model):
-    type = models.TextField(blank=False)
+    device_model = models.TextField(blank=True)
+    device_base = models.TextField(blank=False)
     url = models.TextField(blank=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     token = models.TextField(blank=False)
 
-    name = models.TextField(blank=True, unique=True)
-    model = models.TextField(blank=True)
-    claim = models.TextField(blank=True)
+    device_name = models.TextField(blank=True, unique=True)
 
     href = models.TextField(null=True)
 

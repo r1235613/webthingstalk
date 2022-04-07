@@ -52,13 +52,12 @@ device_table = {
 
 
 class _Device():
-    def __init__(self, type, url, token='', name='', claim='', model='', href=None, properties={}):
-        self.type = type
-        self.url = url
+    def __init__(self, device_model, device_base, device_url, token='', href=None, properties={}):
+        self.device_model = device_model
+        self.device_base = device_base
+        self.device_url = device_url
         self.token = token
-        self.name = name
-        self.claim = claim
-        self.model = model
+        self.device_name = ''
 
         self.device_list = {}
         self.select_device = None
@@ -67,25 +66,19 @@ class _Device():
 
         self.href = href
 
-        self.checked = False
         self.connected = False
-        self.connected_gateway = False
 
     def __str__(self):
         return json.dumps(self.to_dict())
 
     def to_dict(self):
-        return {'type': self.type, 'url': self.url, 'token': self.token, 'name': self.name, 'claim': self.claim, 'model': self.model, 'properties': self.properties, 'device_list': self.device_list, 'select_device': self.select_device, 'checked': self.checked, 'connected': self.connected, 'connected_gateway': self.connected_gateway}
+        return {'device_model': self.device_model, 'base': self.device_base, 'device_url': self.device_url, 'token': self.token, 'device_name': self.device_name, 'properties': self.properties, 'device_list': self.device_list, 'select_device': self.select_device}
 
     def get_gateway_device(self):
-        if self.type != 'gateway':
+        if self.device_base != 'gateway':
             raise ValueError('Not Gateway Device.')
 
-        self.checked = False
-        self.connected = False
-        self.connected_gateway = False
-
-        url = '{0}/things/'.format(self.url.rstrip('/'))
+        url = '{0}/things/'.format(self.device_url.rstrip('/'))
         headers = {'Authorization': 'Bearer {0}'.format(
             self.token), 'Accept': 'application/json'}
         r = requests.get(url, timeout=5, headers=headers)
@@ -94,38 +87,37 @@ class _Device():
         self.device_list = {x['title']: {
             'device_type': x['selectedCapability'], 'device_url': x['href']} for x in data}
 
-        self.connected_gateway = True
-
     def get_device_info(self):
-        self.checked = True
-        self.connected = False
+        origin_device_model = self.device_model
 
         try:
-            self._get_device_info(self.type)
+            self._get_device_info(self.device_base)
         except:
-            self.checked = False
+            raise RuntimeError()
+
+        if 'WT_' + self.device_model != origin_device_model:
             raise ValueError()
 
-        self.connected = True
-
-    def _get_device_info(self, type):
-        if type == 'gateway':
-            url = '{0}/things/'.format(self.url.rstrip('/'))
+    def _get_device_info(self, device_base):
+        if device_base == 'gateway':
+            url = '{0}/things/'.format(self.device_url.rstrip('/'))
             headers = {'Authorization': 'Bearer {0}'.format(
                 self.token), 'Accept': 'application/json'}
         else:
-            url = self.url
+            url = self.device_url
             headers = {}
 
         r = requests.get(url, timeout=5, headers=headers)
         data = r.json()
 
-        if type == 'gateway':
+        if device_base == 'gateway':
             device = list(
                 filter(lambda x: x['title'] == self.select_device, data))[0]
             models = {x: len(device_table[x]['properties'])
                       for x in device['@type']}
-            self.model = max(models, key=models.get)
+
+            if self.device_model != max(models, key=models.get):
+                raise
             self.href = device['href']
             property_types = {key: value['@type']
                               for key, value in device['properties'].items()}
@@ -133,14 +125,15 @@ class _Device():
             # 選擇最多屬性的裝置
             models = {x: len(device_table[x]['properties'])
                       for x in data['@type']}
-            self.model = max(models, key=models.get)
+            self.device_model = max(models, key=models.get)
             property_types = {key: value['@type']
                               for key, value in data['properties'].items()}
+            self.device_name = data['title']
 
         self.properties = {}
         property_cnt_dict = {}
         for key, value in property_types.items():
-            property = device_table[self.model]['properties'][value]
+            property = device_table[self.device_model]['properties'][value]
             property_cnt = property_cnt_dict.get(value, 0)
 
             self.properties[key] = {
@@ -151,21 +144,23 @@ class _Device():
 
             property_cnt_dict[value] = property_cnt + 1
 
+        self.connected = True
+
 
 class _DeviceHander():
     def __init__(self):
         self._user_temp_device = {}
         self._device_processes = {}
 
-        devices = list(Device.objects.all())
-        for d in devices:
-            properties = {x.name: {'property': x.property, 'idf': x.idf,
-                                   'odf': x.odf} for x in list(d.property.all())}
-            self._user_temp_device[d.user_id] = _Device(
-                d.type, d.url, d.token, d.name, d.claim, model=d.model, href=d.href, properties=properties)
-            self.create_device(d.user_id)
+        # devices = list(Device.objects.all())
+        # for d in devices:
+        #     properties = {x.name: {'property': x.property, 'idf': x.idf,
+        #                            'odf': x.odf} for x in list(d.property.all())}
+        #     self._user_temp_device[d.user_id] = _Device(
+        #         d.device_model, d.device_base, d.url, d.token, href=d.href, properties=properties)
+        #     self.create_device(d.user_id)
 
-    def create_temp_device(self, user_id, type, url, token='', name='', claim='', model=''):
+    def create_temp_device(self, user_id, device_model, device_base, device_url='', token=''):
         username = User.objects.get(id=user_id).username
 
         if user_id in self._user_temp_device:
@@ -173,21 +168,17 @@ class _DeviceHander():
                 'User %s has already created temp device.' % username)
 
         self._user_temp_device[user_id] = _Device(
-            type, url, token, name, claim, model)
+            device_model, device_base, device_url, token)
 
     def delete_temp_device(self, user_id):
         self._user_temp_device.pop(user_id, None)
 
-    def update_temp_device(self, user_id, name, claim, select_device):
-        self._user_temp_device[user_id].name = name
-        self._user_temp_device[user_id].claim = claim
+    def update_temp_device(self, user_id, device_url, select_device):
+        self._user_temp_device[user_id].device_url = device_url
         self._user_temp_device[user_id].select_device = select_device
 
     def get_temp_device(self, user_id):
-        return self._user_temp_device.get(user_id, _Device('native', ''))
-
-    def check_device_name_existed(self, user_id, name):
-        return Device.objects.filter(user_id=user_id, name=name).count() > 0
+        return self._user_temp_device.get(user_id, _Device('', 'native', ''))
 
     def temp_device_get_gateway_device(self, user_id):
         self._user_temp_device[user_id].get_gateway_device()
@@ -210,16 +201,15 @@ class _DeviceHander():
         self._create_device_process(user_id, temp_dev)
 
         dev = Device.objects.filter(
-            user_id=user_id, name=temp_dev.name).first()
+            user_id=user_id, device_name=temp_dev.device_name).first()
         if dev == None:
             dev = Device.objects.create(
-                type=temp_dev.type,
-                url=temp_dev.url,
+                device_model=temp_dev.device_model,
+                device_base=temp_dev.device_base,
+                url=temp_dev.device_url,
                 user_id=user_id,
                 token=temp_dev.token,
-                name=temp_dev.name,
-                model=temp_dev.model,
-                claim=temp_dev.claim,
+                device_name=temp_dev.device_name,
                 href=temp_dev.href,
                 start_time=datetime.now()
             )
@@ -233,26 +223,26 @@ class _DeviceHander():
 
     def _create_device_process(self, user_id, device):
         username = User.objects.get(id=user_id).username
-        obj = device_table[device.model]['module']
+        obj = device_table[device.device_model]['module']
         proc = obj(
             'http://192.168.52.140/csm',
-            device.url.rstrip(
-                '/') + device.href if device.type == 'gateway' else device.url,
-            device_name=device.name,
-            username=username if device.claim == 'on' else None,
+            device.device_url.rstrip(
+                '/') + device.href if device.device_base == 'gateway' else device.device_url,
+            device_name=device.device_name,
             property_table=device.properties,
-            gateway_token=device.token if device.type == 'gateway' else None
+            gateway_token=device.token if device.device_base == 'gateway' else None
         )
-        self._device_processes[user_id][device.name] = proc
-        self._device_processes[user_id][device.name].start()
+        self._device_processes[user_id][device.device_name] = proc
+        self._device_processes[user_id][device.device_name].start()
 
-    def delete_device(self, user_id, name):
-        proc = self._device_processes[user_id].pop(name, None)
+    def delete_device(self, user_id, device_name):
+        proc = self._device_processes[user_id].pop(device_name, None)
         if proc:
             proc.terminate()
             proc.join()
 
-        Device.objects.filter(user_id=user_id, name=name).delete()
+        Device.objects.filter(
+            user_id=user_id, device_name=device_name).delete()
 
 
 device_handler = _DeviceHander()
