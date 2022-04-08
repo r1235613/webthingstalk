@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib import messages
 from django.views.generic.edit import FormView
 
@@ -7,7 +8,9 @@ from xtalk_template.views import IndexView
 
 from .forms import DeviceForm, DeviceDeleteForm
 from .models import User, Device, DeviceUrl
+
 from .device import device_handler
+from .gateway import gateway_hander
 
 
 user_temp_device = {}
@@ -31,12 +34,16 @@ class IndexView(IndexView):
         context['form'] = DeviceForm(
             native_url_choices=[
                 ('', 'select...'), ('add', 'Add new device'), *native_urls],
-            # device_choices=[
-            #     (name, name) for name, _ in context['temp_device'].device_list.items()],
+            gateway_device_choices=[
+                ('', 'select...'), *[(name, name) for name,
+                                     _ in context['temp_device'].device_list.items()]
+            ],
             initial={
                 'device_model': context['temp_device'].device_model,
                 'device_base': context['temp_device'].device_base,
                 'native_url_list': context['temp_device'].device_url,
+                'gateway_type': context['temp_device'].gateway_type,
+                'gateway_device_list': context['temp_device'].device_name
             }
         )
 
@@ -55,7 +62,14 @@ class DeviceBaseView(FormView):
         device_base = form.data.get('device_base', 'gateway')
 
         device_handler.delete_temp_device(user_id)
-        device_handler.create_temp_device(user_id, device_model, device_base)
+
+        if device_base == 'gateway':
+            device_handler.create_temp_device(
+                user_id, device_model, device_base, gateway_type='default')
+            device_handler.temp_device_get_gateway_device(user_id)
+        else:
+            device_handler.create_temp_device(
+                user_id, device_model, device_base)
 
         return super().form_valid(form)
 
@@ -72,7 +86,7 @@ class ConnectNativeDeviceView(FormView):
         self.user_id = User.objects.get(username=self.request.user.username).id
 
         device_model = form.data.get('device_model', '')
-        device_base = form.data.get('device_base', 'gateway')
+        device_base = form.data.get('device_base', 'native')
 
         if form.data['native_url_list'] == 'add':
             device_url = form.data['native_device_url'].rstrip('/')
@@ -132,14 +146,20 @@ class ConnectGatewayView(FormView):
     def form_valid(self, form):
         user_id = User.objects.get(username=self.request.user.username).id
 
-        type = form.data.get('type', 'native')
-        url = form.data.get('url', '')
-        token = form.data.get('token', '')
-        name = form.data.get('name', '')
+        device_model = form.data.get('device_model', '')
+        device_base = form.data.get('device_base', 'gateway')
+        gateway_type = form.data.get('gateway_type', 'default')
+        gateway_url = form.data.get('custom_gateway_url', '')
+        gateway_username = form.data.get('custom_gateway_username', '')
+        gateway_password = form.data.get('custom_gateway_password', '')
+
+        if gateway_type == 'custom':
+            gateway_hander.create_custom_gateway(
+                user_id, gateway_url, gateway_username, gateway_password)
 
         device_handler.delete_temp_device(user_id)
         device_handler.create_temp_device(
-            user_id, 'gateway', url, token, name)
+            user_id, device_model, device_base, gateway_type=gateway_type)
 
         try:
             device_handler.temp_device_get_gateway_device(user_id)
@@ -151,7 +171,7 @@ class ConnectGatewayView(FormView):
         return super().form_valid(form)
 
 
-class GatewayDeviceCheckView(FormView):
+class ConnectGatewayDeviceView(FormView):
     template_name = 'xtalk/index.html'
     form_class = DeviceForm
     success_url = '/'
@@ -159,11 +179,17 @@ class GatewayDeviceCheckView(FormView):
     def form_valid(self, form):
         user_id = User.objects.get(username=self.request.user.username).id
 
-        name = form.data.get('name', '')
-        select_device = form.data.get('select_device', '')
+        gateway_device = form.data.get('gateway_device_list', '')
+        device_handler.update_temp_device(user_id, gateway_device)
 
-        device_handler.update_temp_device(user_id, name, select_device)
-        device_handler.temp_device_get_info(user_id)
+        try:
+            device_handler.temp_device_get_gateway_device(user_id)
+            device_handler.temp_device_get_info(user_id)
+        except ValueError:
+            temp_device_model = device_handler.get_temp_device(
+                user_id).device_model
+            messages.warning(
+                self.request, 'Device Model mismatch, the device is WT_{0}.'.format(temp_device_model))
 
         return super().form_valid(form)
 

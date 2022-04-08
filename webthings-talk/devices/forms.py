@@ -10,10 +10,14 @@ from .device import device_table
 DEVICE_MODELS_CHOICES = [(x['device_model'], x['device_model'])
                          for _, x in device_table.items()]
 
-DEVICE_BASE_CHOICES = [('gateway', 'Gateway Base'), ('native', 'Native Base')]
+DEVICE_BASE_CHOICES = [('', 'select...'), ('gateway',
+                                           'Gateway Base'), ('native', 'Native Base')]
+
+GATEWAY_CHOICES = [('default', 'Default Gateway'),
+                   ('custom', 'Custom Gateway')]
 
 
-class MyCustomChoiceField(forms.ChoiceField):
+class CustomChoiceField(forms.ChoiceField):
     def validate(self, value):
         pass
 
@@ -30,23 +34,32 @@ class CustomSelect(forms.Select):
 class DeviceForm(forms.Form):
     device_model = forms.ChoiceField(label='device_model', choices=DEVICE_MODELS_CHOICES, widget=forms.Select(
         attrs={'aria-label': 'Device Model'}))
-    device_base = forms.ChoiceField(label='device_base', choices=DEVICE_BASE_CHOICES, widget=forms.Select(
+    device_base = forms.ChoiceField(label='device_base', choices=DEVICE_BASE_CHOICES, widget=CustomSelect(
         attrs={'onChange': 'form.action="/device-base"; form.submit();', 'aria-label': 'Device Base'}))
-    native_url_list = MyCustomChoiceField(label='native_url_list', choices=[], widget=CustomSelect(
+
+    native_url_list = CustomChoiceField(label='native_url_list', choices=[], widget=CustomSelect(
         attrs={'aria-label': 'Device URL List'}))
     native_device_url = forms.CharField(label='native_device_url', required=False,
                                         widget=forms.TextInput(attrs={'placeholder': 'http://192.168.0.100:8888', 'aria-label': 'Native Device Url', 'style': 'width: 100%;'}))
-    # token = forms.CharField(label='token', required=False,
-    #                         widget=forms.TextInput(attrs={'size': 47, 'aria-label': 'Gateway Token'}))
-    # device_url_list = MyCustomChoiceField(label='device_url_list', choices=[], widget=forms.Select(
-    #     attrs={'aria-label': 'Device URL List'}))
-    # select_gateway_device = MyCustomChoiceField(label='select_gateway_device', choices=[], required=False, widget=forms.Select(
-    #     attrs={'aria-label': 'Gateway Device'}))
+
+    gateway_type = CustomChoiceField(label='gateway_type', choices=GATEWAY_CHOICES, widget=CustomSelect(
+        attrs={'aria-label': 'Gateway Type'}))
+    custom_gateway_url = forms.CharField(label='custom_gateway_url', required=False,
+                                         widget=forms.TextInput(attrs={'placeholder': 'http://192.168.0.100:8080', 'aria-label': 'Custom Gateway Url', 'style': 'width: 100%;'}))
+    custom_gateway_username = forms.CharField(label='custom_gateway_username', required=False,
+                                              widget=forms.TextInput(attrs={'placeholder': 'Username', 'aria-label': 'Custom Gateway Username', 'style': 'width: 100%;'}))
+    custom_gateway_password = forms.CharField(label='custom_gateway_password', required=False,
+                                              widget=forms.PasswordInput(
+                                                  attrs={'placeholder': 'Password', 'aria-label': 'Custom Gateway Password', 'style': 'width: 100%;'}))
+    gateway_device_list = CustomChoiceField(label='gateway_device_list', choices=[
+    ], required=False, widget=CustomSelect(attrs={'onChange': 'form.action="/connect-gateway-device"; form.submit();', 'aria-label': 'Gateway Device List'}))
 
     def __init__(self, *args, **kwargs):
         native_url_choices = kwargs.pop('native_url_choices', [])
+        gateway_device_choices = kwargs.pop('gateway_device_choices', [])
         super(DeviceForm, self).__init__(*args, **kwargs)
         self.fields['native_url_list'].choices = native_url_choices
+        self.fields['gateway_device_list'].choices = gateway_device_choices
 
 
 class DeviceDeleteForm(forms.Form):

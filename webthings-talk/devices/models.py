@@ -31,20 +31,18 @@ class DeviceUrl(models.Model):
 class Device(models.Model):
     device_model = models.TextField(blank=True)
     device_base = models.TextField(blank=False)
-    url = models.TextField(blank=False)
+    device_url = models.TextField(blank=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
     token = models.TextField(blank=False)
 
-    device_name = models.TextField(blank=True, unique=True)
-
-    href = models.TextField(null=True)
+    device_name = models.TextField(blank=True)
 
     creat_time = models.DateTimeField(auto_now_add=True)
     start_time = models.DateTimeField(null=True)
 
-    def to_dict(self):
-        return {'type': self.type, 'url': self.url, 'token': self.token, 'name': self.name, 'model': self.model, 'claim': self.claim, 'checked': self.checked, 'connected': self.connected}
+    class Meta:
+        unique_together = (('user', 'device_name'),)
 
 
 class DeviceProperty(models.Model):
