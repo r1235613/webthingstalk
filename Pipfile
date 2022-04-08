@@ -9,6 +9,7 @@ fontawesome-free = "*"
 iottalk-py = "*"
 django-sslserver = "*"
 psycopg2-binary = "*"
+beautifulsoup4 = "*"
 
 [dev-packages]
 autopep8 = "*"
