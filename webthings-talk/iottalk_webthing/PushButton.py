@@ -23,29 +23,29 @@ class PushButton(DAI):
         interval=None,
     ):
         device_features = {
-            "Pushed-I1": DeviceFeature(
-                "Pushed-I1",
+            "wtPushed-I1": DeviceFeature(
+                "wtPushed-I1",
                 "idf",
                 [None],
                 self.pushed_I1,
                 None
             ),
-            "Pushed-I2": DeviceFeature(
-                "Pushed-I2",
+            "wtPushed-I2": DeviceFeature(
+                "wtPushed-I2",
                 "idf",
                 [None],
                 self.pushed_I2,
                 None
             ),
-            "Pushed-I3": DeviceFeature(
-                "Pushed-I3",
+            "wtPushed-I3": DeviceFeature(
+                "wtPushed-I3",
                 "idf",
                 [None],
                 self.pushed_I3,
                 None
             ),
-            "Pushed-I4": DeviceFeature(
-                "Pushed-I4",
+            "wtPushed-I4": DeviceFeature(
+                "wtPushed-I4",
                 "idf",
                 [None],
                 self.pushed_I4,
@@ -86,7 +86,7 @@ class PushButton(DAI):
                 return key
 
     def pushed_I1(self):
-        property_name = self._get_property_name('Pushed-I1')
+        property_name = self._get_property_name('wtPushed-I1')
 
         if property_name != None:
             r = requests.get(
@@ -96,7 +96,7 @@ class PushButton(DAI):
                 property_name, 'None') if self.device_type == 'native' else json.loads(r.text)
 
     def pushed_I2(self):
-        property_name = self._get_property_name('Pushed-I2')
+        property_name = self._get_property_name('wtPushed-I2')
 
         if property_name != None:
             r = requests.get(
@@ -106,7 +106,7 @@ class PushButton(DAI):
                 property_name, 'None') if self.device_type == 'native' else json.loads(r.text)
 
     def pushed_I3(self):
-        property_name = self._get_property_name('Pushed-I3')
+        property_name = self._get_property_name('wtPushed-I3')
 
         if property_name != None:
             r = requests.get(
@@ -116,7 +116,7 @@ class PushButton(DAI):
                 property_name, 'None') if self.device_type == 'native' else json.loads(r.text)
 
     def pushed_I4(self):
-        property_name = self._get_property_name('Pushed-I4')
+        property_name = self._get_property_name('wtPushed-I4')
 
         if property_name != None:
             r = requests.get(

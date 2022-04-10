@@ -11,30 +11,30 @@ from abc import abstractmethod
 device_table = {
     'Light': {
         'properties': {
-            'OnOffProperty': {'idf': ['OnOff-I'], 'odf': ['OnOff-O']},
-            'BrightnessProperty': {'idf': ['Brightness-I'], 'odf': ['Brightness-O']},
-            'ColorModeProperty': {'idf': ['ColorMode-I'], 'odf': []},
-            'ColorProperty': {'idf': ['Color-I'], 'odf': ['Color-O']},
+            'OnOffProperty': {'idf': ['wtOnOff-I'], 'odf': ['wtOnOff-O']},
+            'BrightnessProperty': {'idf': ['wtBrightness-I'], 'odf': ['wtBrightness-O']},
+            'ColorModeProperty': {'idf': ['wtColorMode-I'], 'odf': []},
+            'ColorProperty': {'idf': ['wtColor-I'], 'odf': ['wtColor-O']},
             'ColorTemperatureProperty': {
-                'idf': ['ColorTemp-I'],
-                'odf': ['ColorTemp-O']
+                'idf': ['wtColorTemp-I'],
+                'odf': ['wtColorTemp-O']
             },
         },
         'device_model': 'WT_Light',
         'module': iottalk_webthing.Light,
     },
     'OnOffSwitch': {
-        'properties': {'OnOffProperty': {'idf': ['OnOff-I'], 'odf': ['OnOff-O']}},
+        'properties': {'OnOffProperty': {'idf': ['wtOnOff-I'], 'odf': ['wtOnOff-O']}},
         'device_model': 'WT_OnOffSwitch',
         'module': iottalk_webthing.OnOffSwitch,
     },
     'ColorControl': {
         'properties': {
-            'ColorModeProperty': {'idf': ['ColorMode-I'], 'odf': []},
-            'ColorProperty': {'idf': ['Color-I'], 'odf': ['Color-O']},
+            'ColorModeProperty': {'idf': ['wtColorMode-I'], 'odf': []},
+            'ColorProperty': {'idf': ['wtColor-I'], 'odf': ['wtColor-O']},
             'ColorTemperatureProperty': {
-                'idf': ['ColorTemp-I'],
-                'odf': ['ColorTemp-O']
+                'idf': ['wtColorTemp-I'],
+                'odf': ['wtColorTemp-O']
             },
         },
         'device_model': 'WT_ColorControl',
@@ -43,7 +43,7 @@ device_table = {
     'PushButton': {
         'properties': {
             'PushedProperty': {
-                'idf': ['Pushed-I1', 'Pushed-I2', 'Pushed-I3', 'Pushed-I4'],
+                'idf': ['wtPushed-I1', 'wtPushed-I2', 'wtPushed-I3', 'wtPushed-I4'],
                 'odf': []
             },
         },

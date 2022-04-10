@@ -23,50 +23,50 @@ class Light(DAI):
         interval=None,
     ):
         device_features = {
-            "Brightness-I": DeviceFeature(
-                "Brightness-I",
+            "wtBrightness-I": DeviceFeature(
+                "wtBrightness-I",
                 "idf",
                 [None],
                 self.Brightness_I,
                 None
             ),
-            "Color-I": DeviceFeature(
-                "Color-I",
+            "wtColor-I": DeviceFeature(
+                "wtColor-I",
                 "idf",
                 [None],
                 self.Color_I,
                 None
             ),
-            "ColorMode-I": DeviceFeature(
-                "ColorMode-I",
+            "wtColorMode-I": DeviceFeature(
+                "wtColorMode-I",
                 "idf",
                 [None],
                 self.ColorMode_I,
                 None
             ),
-            "ColorTemp-I": DeviceFeature(
-                "ColorTemp-I",
+            "wtColorTemp-I": DeviceFeature(
+                "wtColorTemp-I",
                 "idf",
                 [None],
                 self.ColorTemp_I,
                 None
             ),
-            "OnOff-I": DeviceFeature(
-                "OnOff-I",
+            "wtOnOff-I": DeviceFeature(
+                "wtOnOff-I",
                 "idf",
                 [None],
                 self.OnOff_I,
                 None
             ),
-            "Brightness-O": DeviceFeature(
-                "Brightness-O",
+            "wtBrightness-O": DeviceFeature(
+                "wtBrightness-O",
                 "odf",
                 [None],
                 None,
                 self.Brightness_O
             ),
-            "Color-O": DeviceFeature(
-                "Color-O",
+            "wtColor-O": DeviceFeature(
+                "wtColor-O",
                 "odf",
                 [None],
                 None,
@@ -79,8 +79,8 @@ class Light(DAI):
                 None,
                 self.ColorTemp_O
             ),
-            "OnOff-O": DeviceFeature(
-                "OnOff-O",
+            "wtOnOff-O": DeviceFeature(
+                "wtOnOff-O",
                 "odf",
                 [None],
                 None,
@@ -121,7 +121,7 @@ class Light(DAI):
                 return key
 
     def Brightness_I(self):
-        property_name = self._get_property_name('Brightness-I')
+        property_name = self._get_property_name('wtBrightness-I')
 
         if property_name != None:
             r = requests.get(
@@ -131,7 +131,7 @@ class Light(DAI):
                 property_name, 'None') if self.device_type == 'native' else json.loads(r.text)
 
     def Color_I(self):
-        property_name = self._get_property_name('Color-I')
+        property_name = self._get_property_name('wtColor-I')
 
         if property_name != None:
             r = requests.get(
@@ -144,7 +144,7 @@ class Light(DAI):
                 i:i+2], 16) for i in (0, 2, 4))
 
     def ColorMode_I(self):
-        property_name = self._get_property_name('ColorMode-I')
+        property_name = self._get_property_name('wtColorMode-I')
 
         if property_name != None:
             r = requests.get(
@@ -154,7 +154,7 @@ class Light(DAI):
                 property_name, 'None') if self.device_type == 'native' else json.loads(r.text)
 
     def ColorTemp_I(self):
-        property_name = self._get_property_name('ColorTemp-I')
+        property_name = self._get_property_name('wtColorTemp-I')
 
         if property_name != None:
             r = requests.get(
@@ -164,7 +164,7 @@ class Light(DAI):
                 property_name, 'None') if self.device_type == 'native' else json.loads(r.text)
 
     def OnOff_I(self):
-        property_name = self._get_property_name('OnOff-I')
+        property_name = self._get_property_name('wtOnOff-I')
 
         if property_name != None:
             r = requests.get(
@@ -174,7 +174,7 @@ class Light(DAI):
                 property_name, 'None') if self.device_type == 'native' else json.loads(r.text)
 
     def Brightness_O(self, data):
-        property_name = self._get_property_name('Brightness-O')
+        property_name = self._get_property_name('wtBrightness-O')
         if property_name != None:
             payload = json.dumps({property_name: int(
                 data[0])}) if self.device_type == 'native' else int(data[0])
@@ -186,7 +186,7 @@ class Light(DAI):
             )
 
     def Color_O(self, data):
-        property_name = self._get_property_name('Color-O')
+        property_name = self._get_property_name('wtColor-O')
 
         if property_name != None:
             hex_rgb_str = '#{0:02x}{1:02x}{2:02x}'.format(
@@ -214,7 +214,7 @@ class Light(DAI):
             )
 
     def OnOff_O(self, data):
-        property_name = self._get_property_name('OnOff-O')
+        property_name = self._get_property_name('wtOnOff-O')
 
         if property_name != None:
             r = requests.get(

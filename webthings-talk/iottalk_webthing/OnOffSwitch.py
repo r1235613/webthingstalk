@@ -24,15 +24,15 @@ class OnOffSwitch(DAI):
         interval=None,
     ):
         device_features = {
-            "OnOff-I": DeviceFeature(
-                "OnOff-I",
+            "wtOnOff-I": DeviceFeature(
+                "wtOnOff-I",
                 "idf",
                 [None],
                 self.OnOff_I,
                 None
             ),
-            "OnOff-O": DeviceFeature(
-                "OnOff-O",
+            "wtOnOff-O": DeviceFeature(
+                "wtOnOff-O",
                 "odf",
                 [None],
                 None,
@@ -73,7 +73,7 @@ class OnOffSwitch(DAI):
                 return key
 
     def OnOff_I(self):
-        property_name = self._get_property_name('OnOff-I')
+        property_name = self._get_property_name('wtOnOff-I')
 
         if property_name != None:
             r = requests.get(
@@ -83,7 +83,7 @@ class OnOffSwitch(DAI):
                 property_name, 'None') if self.device_type == 'native' else json.loads(r.text)
 
     def OnOff_O(self, data):
-        property_name = self._get_property_name('OnOff-O')
+        property_name = self._get_property_name('wtOnOff-O')
 
         if property_name != None:
             r = requests.get(
