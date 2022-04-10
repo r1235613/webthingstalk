@@ -170,104 +170,106 @@
   </div>
 </div>
 
-<script>
-  function openGetTokenLink() {
-    const url = new URL("/oauth/authorize?response_type=code&client_id=local-token&scope=/things:readwrite", document.getElementById("id_url").value);
-    window.open(url.href, "_blank");
-  }
-  
-  function showNativeDeviceUrlBlock() {
-    const nativeDeviceUrlBlock = document.getElementById("native_device_url_block");
-    nativeDeviceUrlBlock.style.display="";
-  }
-
-  function hiddenNativeDeviceUrlBlock() {
-    const nativeDeviceUrlBlock = document.getElementById("native_device_url_block");
-    nativeDeviceUrlBlock.style.display="none";
-  }
-
-  function showDeleteNativeDeviceUrlButton() {
-    const deleteNativeDeviceUrlButton = document.getElementById("delete_native_device_url_button");
-    deleteNativeDeviceUrlButton.style.display="";
-  }
-
-  function hiddenDeleteNativeDeviceUrlButton() {
-    const deleteNativeDeviceUrlButton = document.getElementById("delete_native_device_url_button");
-    deleteNativeDeviceUrlButton.style.display="none";
-  }
-
-  function submitCreateDeviceForm() {
-    const form = document.getElementById("create_iottalk_device_form");
-    form.action="/connect-native-device";
-    form.submit();
-  }
-
-  function showGatewayUrlBlock() {
-    const gatewayUrlBlock = document.getElementById("gateway_url_block");
-    gatewayUrlBlock.style.display="";
-  }
-
-  function hiddenGatewayUrlBlock() {
-    const gatewayUrlBlock = document.getElementById("gateway_url_block");
-    gatewayUrlBlock.style.display="none";
-  }
-
-  function showCustomGatewayBlock() {
-    const customGatewayBlock = document.getElementById("custom_gateway_block");
-    customGatewayBlock.style.display="";
-  }
-
-  function hiddenCustomGatewayBlock() {
-    const customGatewayBlock = document.getElementById("custom_gateway_block");
-    customGatewayBlock.style.display="none";
-  }
-
-  function checkNativeUrlListAdd() {
-    const nativeUrlList = document.getElementById("id_native_url_list");
-    if (nativeUrlList.options[nativeUrlList.selectedIndex].value == "add") {
-      showNativeDeviceUrlBlock();
-      hiddenDeleteNativeDeviceUrlButton();
-    } else {
-      hiddenNativeDeviceUrlBlock();
-      showDeleteNativeDeviceUrlButton();
-      submitCreateDeviceForm();
+{% if user.is_authenticated %}
+  <script>
+    function openGetTokenLink() {
+      const url = new URL("/oauth/authorize?response_type=code&client_id=local-token&scope=/things:readwrite", document.getElementById("id_url").value);
+      window.open(url.href, "_blank");
     }
-  }
-
-  function checkNativeUrlListDelete() {
-    const nativeUrlList = document.getElementById("id_native_url_list");
-    const optionValue = nativeUrlList.options[nativeUrlList.selectedIndex].value;
-    if (optionValue != "add" && optionValue != "") {
-      showDeleteNativeDeviceUrlButton();
-    } else {
-      hiddenDeleteNativeDeviceUrlButton();
+    
+    function showNativeDeviceUrlBlock() {
+      const nativeDeviceUrlBlock = document.getElementById("native_device_url_block");
+      nativeDeviceUrlBlock.style.display="";
     }
-  }
 
-  function checkGatewayType() {
-    const gatewayType = document.getElementById("id_gateway_type");
-    const optionValue = gatewayType.options[gatewayType.selectedIndex].value;
-    if (optionValue == "default") {
-      showGatewayUrlBlock();
-      hiddenCustomGatewayBlock()
-    } else {
-      hiddenGatewayUrlBlock();
-      showCustomGatewayBlock();
+    function hiddenNativeDeviceUrlBlock() {
+      const nativeDeviceUrlBlock = document.getElementById("native_device_url_block");
+      nativeDeviceUrlBlock.style.display="none";
     }
-  }
 
-  function init() {
-    const deviceBase = document.getElementById("id_device_base");
-    if (deviceBase.options[deviceBase.selectedIndex].value == "native") {
-      checkNativeUrlListDelete();
-      document.getElementById("id_native_url_list").addEventListener("change", checkNativeUrlListAdd);
-    } else if (deviceBase.options[deviceBase.selectedIndex].value == "gateway") {
-      document.getElementById("id_gateway_type").addEventListener("change", checkGatewayType);
+    function showDeleteNativeDeviceUrlButton() {
+      const deleteNativeDeviceUrlButton = document.getElementById("delete_native_device_url_button");
+      deleteNativeDeviceUrlButton.style.display="";
     }
-  }
 
-  window.onload = init;
-</script>
+    function hiddenDeleteNativeDeviceUrlButton() {
+      const deleteNativeDeviceUrlButton = document.getElementById("delete_native_device_url_button");
+      deleteNativeDeviceUrlButton.style.display="none";
+    }
+
+    function submitCreateDeviceForm() {
+      const form = document.getElementById("create_iottalk_device_form");
+      form.action="/connect-native-device";
+      form.submit();
+    }
+
+    function showGatewayUrlBlock() {
+      const gatewayUrlBlock = document.getElementById("gateway_url_block");
+      gatewayUrlBlock.style.display="";
+    }
+
+    function hiddenGatewayUrlBlock() {
+      const gatewayUrlBlock = document.getElementById("gateway_url_block");
+      gatewayUrlBlock.style.display="none";
+    }
+
+    function showCustomGatewayBlock() {
+      const customGatewayBlock = document.getElementById("custom_gateway_block");
+      customGatewayBlock.style.display="";
+    }
+
+    function hiddenCustomGatewayBlock() {
+      const customGatewayBlock = document.getElementById("custom_gateway_block");
+      customGatewayBlock.style.display="none";
+    }
+
+    function checkNativeUrlListAdd() {
+      const nativeUrlList = document.getElementById("id_native_url_list");
+      if (nativeUrlList.options[nativeUrlList.selectedIndex].value == "add") {
+        showNativeDeviceUrlBlock();
+        hiddenDeleteNativeDeviceUrlButton();
+      } else {
+        hiddenNativeDeviceUrlBlock();
+        showDeleteNativeDeviceUrlButton();
+        submitCreateDeviceForm();
+      }
+    }
+
+    function checkNativeUrlListDelete() {
+      const nativeUrlList = document.getElementById("id_native_url_list");
+      const optionValue = nativeUrlList.options[nativeUrlList.selectedIndex].value;
+      if (optionValue != "add" && optionValue != "") {
+        showDeleteNativeDeviceUrlButton();
+      } else {
+        hiddenDeleteNativeDeviceUrlButton();
+      }
+    }
+
+    function checkGatewayType() {
+      const gatewayType = document.getElementById("id_gateway_type");
+      const optionValue = gatewayType.options[gatewayType.selectedIndex].value;
+      if (optionValue == "default") {
+        showGatewayUrlBlock();
+        hiddenCustomGatewayBlock()
+      } else {
+        hiddenGatewayUrlBlock();
+        showCustomGatewayBlock();
+      }
+    }
+
+    function init() {
+      const deviceBase = document.getElementById("id_device_base");
+      if (deviceBase.options[deviceBase.selectedIndex].value == "native") {
+        checkNativeUrlListDelete();
+        document.getElementById("id_native_url_list").addEventListener("change", checkNativeUrlListAdd);
+      } else if (deviceBase.options[deviceBase.selectedIndex].value == "gateway") {
+        document.getElementById("id_gateway_type").addEventListener("change", checkGatewayType);
+      }
+    }
+
+    window.onload = init;
+  </script>
+{% endif %}
 
 {% endblock %}
 
