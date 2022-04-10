@@ -94,9 +94,20 @@
             <div class="col-sm-6">{{ form.gateway_type }}</div>
           </div>
 
-          <div class="row mb-2 align-items-center" id="gateway_url_block">
+          <div class="row align-items-center" id="gateway_url_block">
             <div class="col-sm-6 offset-sm-3"><a href="{{ temp_device.gateway_url }}" target="_blank">Click here to open gateway.</a></div>
           </div>
+
+          {% if temp_device.gateway_type == 'default' %}
+            <div id="default_gateway_block">
+              <div class="row align-items-center" >
+                <div class="col-sm-6 offset-sm-3">Username: {{ default_gateway_username }}</div>
+              </div>
+              <div class="row mb-2 align-items-center" >
+                <div class="col-sm-6 offset-sm-3">Password: {{ default_gateway_password }}</div>
+              </div>
+            </div>
+          {% endif %}
 
           <div class="mb-2 align-items-center" id="custom_gateway_block" style="display:none">
             <div class="row mb-1">
@@ -116,14 +127,6 @@
             <label class="col-sm-3">Gateway Device</label>
             <div class="col-sm-6">{{ form.gateway_device_list }}</div>
           </div>
-
-          {% comment %} {% if temp_device.type == "gateway" and temp_device.connected_gateway %}
-            <div class="row mb-2 align-items-center">
-              <label class="col-sm-3">Gateway Device</label>
-              <div class="col-sm-6">{{ form.select_device }}</div>
-              <div class="col-sm-2"><button id="check_button" type="submit" class="btn btn-primary btn-sm" formaction="/check-gateway-device">Connect</button></div>
-            </div>
-          {% endif %} {% endcomment %}
         {% endif %}
 
         {% if temp_device.connected %}
@@ -223,6 +226,16 @@
       customGatewayBlock.style.display="none";
     }
 
+    function showDefaultGatewayBlock() {
+      const defaultGatewayBlock = document.getElementById("default_gateway_block");
+      defaultGatewayBlock.style.display="";
+    }
+
+    function hiddenDefaultGatewayBlock() {
+      const defaultGatewayBlock = document.getElementById("default_gateway_block");
+      defaultGatewayBlock.style.display="none";
+    }
+
     function checkNativeUrlListAdd() {
       const nativeUrlList = document.getElementById("id_native_url_list");
       if (nativeUrlList.options[nativeUrlList.selectedIndex].value == "add") {
@@ -250,9 +263,11 @@
       const optionValue = gatewayType.options[gatewayType.selectedIndex].value;
       if (optionValue == "default") {
         showGatewayUrlBlock();
+        showDefaultGatewayBlock();
         hiddenCustomGatewayBlock()
       } else {
         hiddenGatewayUrlBlock();
+        hiddenDefaultGatewayBlock();
         showCustomGatewayBlock();
       }
     }
