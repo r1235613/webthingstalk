@@ -102,7 +102,7 @@ DATABASES = {
         'NAME': 'webthingstalk',
         'USER': 'postgres',
         'PASSWORD': 'asdf1234',
-        'HOST': '127.0.0.1',
+        'HOST': '192.168.52.100',
         'PORT': '5432',
     }
 }
@@ -163,7 +163,7 @@ XTALK_ACCESSTOKEN_MODEL = 'devices.AccessToken'
 
 XTALK_OAUTH2_CLIENT_ID = 'MB5Qzv4qxH4engGU2xJUZq2jpz4OCae59H8dXV3m'
 XTALK_OAUTH2_CLIENT_SECRET = 'uQUjC3yQNNRHlLiDkTiQcylhGB0eTquMcf3ylPVi9XvlGZwZEUSG1G2WphewtEavXzGkVWRi0BHu3bnhZH5P9XUVQnAmS2vPFFVqqzpox0bRxvGmt8S1POi1zkRpZSs9Ype5gIx6Ri3uCOJ2ESJ89HGZXRPeixxO'
-XTALK_OAUTH2_REDIRECT_URI = 'https://192.168.52.100:8000/auth/callback'
+XTALK_OAUTH2_REDIRECT_URI = 'https://127.0.0.1:8000/auth/callback'
 XTALK_OIDC_DISCOVERY_ENDPOINT = 'https://account-test.iottalk2.tw/.well-known/openid-configuration'
 XTALK_OAUTH2_REVOCATION_ENDPOINT = 'https://account-test.iottalk2.tw/oauth2/v1/revoke/'
 
