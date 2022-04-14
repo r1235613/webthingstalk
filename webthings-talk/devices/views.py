@@ -27,6 +27,9 @@ class IndexView(IndexView):
 
         context['temp_device'] = device_handler.get_temp_device(user_id)
         context['user_devices'] = Device.objects.filter(user_id=user_id).all()
+        context['default_gateway_username'] = settings.DEFAULT_GATEWAY_USERNAME
+        context['default_gateway_password'] = settings.DEFAULT_GATEWAY_PASSWORD
+
 
         native_urls = [(x['url'], x['url'])
                        for x in DeviceUrl.objects.filter(user_id=user_id).values()]
