@@ -154,8 +154,13 @@ class ConnectGatewayView(FormView):
         gateway_password = form.data.get('custom_gateway_password', '')
 
         if gateway_type == 'custom':
-            gateway_hander.create_custom_gateway(
-                user_id, gateway_url, gateway_username, gateway_password)
+            try:
+                gateway_hander.create_custom_gateway(
+                    user_id, gateway_url, gateway_username, gateway_password)
+            except:
+                messages.error(
+                    self.request, 'Connection failed, please check Gateway URL, Username and Password.')
+                return super().form_valid(form)
 
         device_handler.delete_temp_device(user_id)
         device_handler.create_temp_device(
@@ -166,7 +171,6 @@ class ConnectGatewayView(FormView):
         except:
             messages.error(
                 self.request, 'Connection failed, please check Device Type, Gateway URL and Token.')
-            return super().form_valid(form)
 
         return super().form_valid(form)
 
