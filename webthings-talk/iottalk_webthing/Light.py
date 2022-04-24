@@ -175,15 +175,18 @@ class Light(DAI):
 
     def Brightness_O(self, data):
         property_name = self._get_property_name('wtBrightness-O')
+
         if property_name != None:
             payload = json.dumps({property_name: int(
-                data[0])}) if self.device_type == 'native' else int(data[0])
+                data[0])}) if self.device_type == 'native' else {property_name: int(data[0])}
             requests.put(
                 '{0}/properties/{1}'.format(self.webthing_url, property_name),
                 json=payload if self.device_type == 'gateway' else None,
                 data=payload if self.device_type == 'native' else None,
                 headers=self.headers
             )
+
+            print( '{0}/properties/{1}'.format(self.webthing_url, property_name), payload, self.headers)
 
     def Color_O(self, data):
         property_name = self._get_property_name('wtColor-O')
@@ -192,7 +195,7 @@ class Light(DAI):
             hex_rgb_str = '#{0:02x}{1:02x}{2:02x}'.format(
                 data[0], data[1], data[2])
             payload = json.dumps(
-                {property_name: hex_rgb_str}) if self.device_type == 'native' else hex_rgb_str
+                {property_name: hex_rgb_str}) if self.device_type == 'native' else {property_name: hex_rgb_str}
             requests.put(
                 '{0}/properties/{1}'.format(self.webthing_url, property_name),
                 json=payload if self.device_type == 'gateway' else None,
@@ -205,7 +208,7 @@ class Light(DAI):
 
         if property_name != None:
             payload = json.dumps({property_name: int(
-                data[0])}) if self.device_type == 'native' else int(data[0])
+                data[0])}) if self.device_type == 'native' else {property_name: int(data[0])}
             requests.put(
                 '{0}/properties/{1}'.format(self.webthing_url, property_name),
                 json=payload if self.device_type == 'gateway' else None,
@@ -225,7 +228,7 @@ class Light(DAI):
                 return
 
             payload = json.dumps({property_name: bool(
-                data[0])}) if self.device_type == 'native' else bool(data[0])
+                data[0])}) if self.device_type == 'native' else {property_name: bool(data[0])}
             requests.put(
                 '{0}/properties/{1}'.format(self.webthing_url, property_name),
                 json=payload if self.device_type == 'gateway' else None,
