@@ -127,6 +127,7 @@ class _Device():
                       for x in device['@type']}
 
             self.device_model = max(models, key=models.get)
+
             self.device_url = self.gateway_url + device['href']
             self.device_name = device['title']
             property_types = {key: value['@type']
