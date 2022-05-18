@@ -161,15 +161,6 @@ class _Device():
 class _DeviceHander():
     def __init__(self):
         self._user_temp_device = {}
-        self._device_processes = {}
-
-        # devices = list(Device.objects.all())
-        # for d in devices:
-        #     properties = {x.name: {'property': x.property, 'idf': x.idf,
-        #                            'odf': x.odf} for x in list(d.property.all())}
-        #     self._user_temp_device[d.user_id] = _Device(
-        #         d.device_model, d.device_base, d.url, d.token, href=d.href, properties=properties)
-        #     self.create_device(d.user_id)
 
     def create_temp_device(self, user_id, device_model, device_base, device_url=None, gateway_type=None):
         username = User.objects.get(id=user_id).username
@@ -214,10 +205,7 @@ class _DeviceHander():
 
         temp_dev = self._user_temp_device[user_id]
 
-        if user_id not in self._device_processes:
-            self._device_processes[user_id] = {}
-
-        self._create_device_process(user_id, temp_dev)
+        token = self._create_device_autogen(temp_dev)
 
         dev = Device.objects.filter(
             user_id=user_id, device_name=temp_dev.device_name).first()
@@ -227,7 +215,7 @@ class _DeviceHander():
                 device_base=temp_dev.device_base,
                 device_url=temp_dev.device_url,
                 user_id=user_id,
-                token=temp_dev.gateway_token,
+                token=token,
                 device_name=temp_dev.device_name,
                 start_time=datetime.now()
             )
@@ -239,24 +227,25 @@ class _DeviceHander():
 
         self.delete_temp_device(user_id)
 
-    def _create_device_process(self, user_id, device):
+    def _create_device_autogen(self, device):
         obj = device_table[device.device_model]['module']
-        proc = obj(
+        dev = obj(
             'http://192.168.52.140/csm',
             device.device_url,
             device_name=device.device_name,
             property_table=device.properties,
             gateway_token=device.gateway_token if device.device_base == 'gateway' else None
         )
-        self._device_processes[user_id][device.device_name] = proc
-        self._device_processes[user_id][device.device_name].start()
+        token = dev.create_device()
+
+        return token
 
     def delete_device(self, user_id, device_name):
-        proc = self._device_processes[user_id].pop(device_name, None)
-        if proc:
-            proc.terminate()
-            proc.join()
+        dev = Device.objects.filter(
+            user_id=user_id, device_name=device_name).first()
 
+        r = requests.post('http://192.168.52.140/autogen/delete_device/', json={'token': dev.token})
+        print(r.status_code, r.text)
         Device.objects.filter(
             user_id=user_id, device_name=device_name).delete()
 
