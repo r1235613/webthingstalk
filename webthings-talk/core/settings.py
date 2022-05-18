@@ -102,7 +102,7 @@ DATABASES = {
         'NAME': 'webthingstalk',
         'USER': 'postgres',
         'PASSWORD': 'asdf1234',
-        'HOST': '192.168.52.100',
+        'HOST': '192.168.52.140',
         'PORT': '5432',
     }
 }
@@ -168,6 +168,6 @@ XTALK_OIDC_DISCOVERY_ENDPOINT = 'https://account-test.iottalk2.tw/.well-known/op
 XTALK_OAUTH2_REVOCATION_ENDPOINT = 'https://account-test.iottalk2.tw/oauth2/v1/revoke/'
 
 # Default WebThings Gateway
-DEFAULT_GATEWAY_URL = 'http://192.168.52.141:8080'
+DEFAULT_GATEWAY_URL = 'http://192.168.52.140:8080'
 DEFAULT_GATEWAY_USERNAME = 'iottalk@iottalk.tw'
 DEFAULT_GATEWAY_PASSWORD = 'iottalk'
