@@ -43,7 +43,7 @@ class DeviceForm(forms.Form):
                                         widget=forms.TextInput(attrs={'placeholder': 'http://192.168.0.100:8888', 'aria-label': 'Native Device Url', 'style': 'width: 100%;'}))
 
     gateway_type = CustomChoiceField(label='gateway_type', choices=GATEWAY_CHOICES, widget=CustomSelect(
-        attrs={'aria-label': 'Gateway Type'}))
+        attrs={'onChange': 'form.action="/gateway-type"; form.submit();', 'aria-label': 'Gateway Type'}))
     custom_gateway_url = forms.CharField(label='custom_gateway_url', required=False,
                                          widget=forms.TextInput(attrs={'placeholder': 'http://192.168.0.100:8080', 'aria-label': 'Custom Gateway Url', 'style': 'width: 100%;'}))
     custom_gateway_username = forms.CharField(label='custom_gateway_username', required=False,

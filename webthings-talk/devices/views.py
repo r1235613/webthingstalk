@@ -141,6 +141,24 @@ class DeleteNativeDeviceUrlView(FormView):
         return super().form_valid(form)
 
 
+class GatewayTypeView(FormView):
+    template_name = 'xtalk/index.html'
+    form_class = DeviceForm
+    success_url = '/'
+
+    def form_valid(self, form):
+        user_id = User.objects.get(username=self.request.user.username).id
+
+        device_model = form.data.get('device_model', '')
+        device_base = form.data.get('device_base', 'gateway')
+        gateway_type = form.data.get('gateway_type', 'default')
+
+        device_handler.delete_temp_device(user_id)
+        device_handler.create_temp_device(user_id, device_model, device_base, gateway_type=gateway_type)
+
+        return super().form_valid(form)
+
+
 class ConnectGatewayView(FormView):
     template_name = 'xtalk/index.html'
     form_class = DeviceForm
