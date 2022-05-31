@@ -256,16 +256,26 @@
       }
     }
 
-    function checkGatewayUrlList() {
+    function checkGatewayUrlListAdd() {
       const gatewayUrlList = document.getElementById("id_gateway_url_list");
       const optionValue = gatewayUrlList.options[gatewayUrlList.selectedIndex].value;
       if (gatewayUrlList.options[gatewayUrlList.selectedIndex].value == "add") {
         showCustomGatewayBlock();
         hiddenDeleteGatewayUrlButton();
-      } else if (optionValue != "add" && optionValue != "") {
+      } else {
         hiddenCustomGatewayBlock();
         showDeleteGatewayUrlButton();
         submitCreateDeviceForm();
+      }
+    }
+
+    function checkGatewayUrlListDelete() {
+      const gatewayUrlList = document.getElementById("id_gateway_url_list");
+      const optionValue = gatewayUrlList.options[gatewayUrlList.selectedIndex].value;
+      if (optionValue != "add" && optionValue != "") {
+        showDeleteGatewayUrlButton();
+      } else {
+        hiddenDeleteGatewayUrlButton();
       }
     }
 
@@ -276,7 +286,8 @@
         checkNativeUrlListDelete();
         document.getElementById("id_native_url_list").addEventListener("change", checkNativeUrlListAdd);
       } else if (deviceBase.options[deviceBase.selectedIndex].value == "gateway" && gatewayType.options [gatewayType.selectedIndex].value == "custom") {
-        document.getElementById("id_gateway_url_list").addEventListener("change", checkGatewayUrlList);
+        checkGatewayUrlListDelete();
+        document.getElementById("id_gateway_url_list").addEventListener("change", checkGatewayUrlListAdd);
       }
     }
 
