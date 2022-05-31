@@ -171,8 +171,12 @@ class _DeviceHander():
 
         if gateway_type == 'custom':
             gateway = gateway_hander.get_custom_gateway(user_id)
-            self._user_temp_device[user_id] = _Device(
-                device_model, device_base, device_url, gateway_type=gateway_type, gateway_url=gateway.url, gateway_token=gateway.device_token)
+            if gateway != None:
+                self._user_temp_device[user_id] = _Device(
+                    device_model, device_base, device_url, gateway_type=gateway_type, gateway_url=gateway.url, gateway_token=gateway.device_token)
+            else:
+                self._user_temp_device[user_id] = _Device(
+                    device_model, device_base, device_url, gateway_type=gateway_type)
         elif gateway_type == 'default':
             gateway = gateway_hander.default_gateway
             self._user_temp_device[user_id] = _Device(
@@ -244,7 +248,8 @@ class _DeviceHander():
         dev = Device.objects.filter(
             user_id=user_id, device_name=device_name).first()
 
-        r = requests.post('http://192.168.52.140/autogen/delete_device/', json={'token': dev.token})
+        r = requests.post(
+            'http://192.168.52.140/autogen/delete_device/', json={'token': dev.token})
         print(r.status_code, r.text)
         Device.objects.filter(
             user_id=user_id, device_name=device_name).delete()

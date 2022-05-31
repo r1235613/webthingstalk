@@ -7,7 +7,7 @@ from django.views.generic.edit import FormView
 from xtalk_template.views import IndexView
 
 from .forms import DeviceForm, DeviceDeleteForm
-from .models import User, Device, DeviceUrl
+from .models import User, Device, DeviceUrl, GatewayUrl
 
 from .device import device_handler
 from .gateway import gateway_hander
@@ -30,13 +30,16 @@ class IndexView(IndexView):
         context['default_gateway_username'] = settings.DEFAULT_GATEWAY_USERNAME
         context['default_gateway_password'] = settings.DEFAULT_GATEWAY_PASSWORD
 
-
         native_urls = [(x['url'], x['url'])
                        for x in DeviceUrl.objects.filter(user_id=user_id).values()]
+        gateway_urls = [(x['url'], x['url'])
+                        for x in GatewayUrl.objects.filter(user_id=user_id).values()]
 
         context['form'] = DeviceForm(
             native_url_choices=[
                 ('', 'select...'), ('add', 'Add new device'), *native_urls],
+            gateway_url_choices=[
+                ('', 'select...'), ('add', 'Add new gateway'), *gateway_urls],
             gateway_device_choices=[
                 ('', 'select...'), *[(name, name) for name,
                                      _ in context['temp_device'].device_list.items()]
@@ -46,6 +49,7 @@ class IndexView(IndexView):
                 'device_base': context['temp_device'].device_base,
                 'native_url_list': context['temp_device'].device_url,
                 'gateway_type': context['temp_device'].gateway_type,
+                'gateway_url_list': context['temp_device'].gateway_url,
                 'gateway_device_list': context['temp_device'].device_name
             }
         )
@@ -116,7 +120,7 @@ class ConnectNativeDeviceView(FormView):
                 self.request, 'Device Model mismatch, the device is WT_{0}.'.format(temp_device_model))
 
         if form.data['native_url_list'] == 'add' and not self._check_device_url_exist(device_url):
-            dev = DeviceUrl.objects.create(
+            DeviceUrl.objects.create(
                 url=device_url,
                 user_id=self.user_id,
                 create_time=datetime.now()
@@ -154,7 +158,8 @@ class GatewayTypeView(FormView):
         gateway_type = form.data.get('gateway_type', 'default')
 
         device_handler.delete_temp_device(user_id)
-        device_handler.create_temp_device(user_id, device_model, device_base, gateway_type=gateway_type)
+        device_handler.create_temp_device(
+            user_id, device_model, device_base, gateway_type=gateway_type)
 
         return super().form_valid(form)
 
@@ -164,34 +169,72 @@ class ConnectGatewayView(FormView):
     form_class = DeviceForm
     success_url = '/'
 
+    def _check_gateway_url_exist(self,  gateway_url):
+        return len(GatewayUrl.objects.filter(url=gateway_url, user_id=self.user_id)) >= 1
+
     def form_valid(self, form):
-        user_id = User.objects.get(username=self.request.user.username).id
+        self.user_id = User.objects.get(username=self.request.user.username).id
 
         device_model = form.data.get('device_model', '')
         device_base = form.data.get('device_base', 'gateway')
         gateway_type = form.data.get('gateway_type', 'default')
-        gateway_url = form.data.get('custom_gateway_url', '')
         gateway_username = form.data.get('custom_gateway_username', '')
         gateway_password = form.data.get('custom_gateway_password', '')
 
-        if gateway_type == 'custom':
-            try:
-                gateway_hander.create_custom_gateway(
-                    user_id, gateway_url, gateway_username, gateway_password)
-            except:
-                messages.error(
-                    self.request, 'Connection failed, please check Gateway URL, Username and Password.')
-                return super().form_valid(form)
-
-        device_handler.delete_temp_device(user_id)
-        device_handler.create_temp_device(
-            user_id, device_model, device_base, gateway_type=gateway_type)
+        if form.data['gateway_url_list'] == 'add':
+            gateway_url = form.data.get('custom_gateway_url', '').rstrip('/')
+        else:
+            gateway_url = form.data['gateway_url_list']
 
         try:
-            device_handler.temp_device_get_gateway_device(user_id)
+            if gateway_type == 'custom' and form.data['gateway_url_list'] == 'add':
+                gateway_hander.create_custom_gateway(
+                    self.user_id, gateway_url, gateway_username, gateway_password)
+            elif gateway_type == 'custom' and form.data['gateway_url_list'] != 'add':
+                user_token = GatewayUrl.objects.filter(
+                    url=gateway_url).first().token
+                gateway_hander.create_custom_gateway_by_token(
+                    self.user_id, gateway_url, user_token)
+        except:
+            messages.error(
+                self.request, 'Connection failed, please check Gateway URL, Username and Password.')
+            return super().form_valid(form)
+
+        device_handler.delete_temp_device(self.user_id)
+        device_handler.create_temp_device(
+            self.user_id, device_model, device_base, gateway_type=gateway_type)
+
+        try:
+            device_handler.temp_device_get_gateway_device(self.user_id)
         except:
             messages.error(
                 self.request, 'Connection failed, please check Device Type, Gateway URL and Token.')
+            return super().form_valid(form)
+
+        if form.data['gateway_url_list'] == 'add' and not self._check_gateway_url_exist(gateway_url):
+            GatewayUrl.objects.create(
+                url=gateway_url,
+                user_id=self.user_id,
+                token=gateway_hander.get_custom_gateway(
+                    self.user_id).user_token,
+                create_time=datetime.now()
+            )
+
+        return super().form_valid(form)
+
+
+class DeleteGatewayUrlView(FormView):
+    template_name = 'xtalk/index.html'
+    form_class = DeviceForm
+    success_url = '/'
+
+    def form_valid(self, form):
+        user_id = User.objects.get(username=self.request.user.username).id
+
+        gateway_url = form.data.get('gateway_url_list', '')
+        GatewayUrl.objects.filter(url=gateway_url, user_id=user_id).delete()
+
+        device_handler.delete_temp_device(user_id)
 
         return super().form_valid(form)
 

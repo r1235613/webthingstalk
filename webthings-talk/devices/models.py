@@ -28,6 +28,14 @@ class DeviceUrl(models.Model):
     create_time = models.DateTimeField(auto_now_add=True)
 
 
+class GatewayUrl(models.Model):
+    url = models.TextField(blank=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
+    token = models.TextField(blank=False)
+    create_time = models.DateTimeField(auto_now_add=True)
+
+
 class Device(models.Model):
     device_model = models.TextField(blank=True)
     device_base = models.TextField(blank=False)

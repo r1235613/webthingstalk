@@ -44,6 +44,8 @@ class DeviceForm(forms.Form):
 
     gateway_type = CustomChoiceField(label='gateway_type', choices=GATEWAY_CHOICES, widget=CustomSelect(
         attrs={'onChange': 'form.action="/gateway-type"; form.submit();', 'aria-label': 'Gateway Type'}))
+    gateway_url_list = CustomChoiceField(label='gateway_url_list', choices=[], widget=CustomSelect(
+        attrs={'aria-label': 'Gateway URL List'}))
     custom_gateway_url = forms.CharField(label='custom_gateway_url', required=False,
                                          widget=forms.TextInput(attrs={'placeholder': 'http://192.168.0.100:8080', 'aria-label': 'Custom Gateway Url', 'style': 'width: 100%;'}))
     custom_gateway_username = forms.CharField(label='custom_gateway_username', required=False,
@@ -56,9 +58,11 @@ class DeviceForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         native_url_choices = kwargs.pop('native_url_choices', [])
+        gateway_url_choices = kwargs.pop('gateway_url_choices', [])
         gateway_device_choices = kwargs.pop('gateway_device_choices', [])
         super(DeviceForm, self).__init__(*args, **kwargs)
         self.fields['native_url_list'].choices = native_url_choices
+        self.fields['gateway_url_list'].choices = gateway_url_choices
         self.fields['gateway_device_list'].choices = gateway_device_choices
 
 
