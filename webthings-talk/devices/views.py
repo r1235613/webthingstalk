@@ -196,7 +196,6 @@ class ConnectGatewayView(FormView):
             device_handler.delete_temp_device(self.user_id)
             device_handler.create_temp_device(
                 self.user_id, device_model, device_base, gateway_type=gateway_type)
-            print(device_handler.get_temp_device(self.user_id).gateway_url)
             messages.error(
                 self.request, 'Connection failed, please check Gateway URL, Username and Password.')
             return super().form_valid(form)
