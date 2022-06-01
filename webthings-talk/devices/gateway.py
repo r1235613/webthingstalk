@@ -17,7 +17,7 @@ class _Gateway:
         url = '{0}/oauth/allow?response_type=code&client_id=local-token&scope=%2Fthings%3Areadwrite&redirect_uri=https%3A%2F%2Fgateway.localhost%2Foauth%2Flocal-token-service&jwt={1}'.format(
             self.url, self.user_token)
 
-        r = requests.get(url)
+        r = requests.get(url, timeout=3)
         soup = BeautifulSoup(r.text, 'html.parser')
         self.device_token = soup.find('code', id='token').text
 
@@ -37,7 +37,7 @@ class _GatewayHander():
                    'Accept': 'application/json'}
         payload = {'email': username, 'password': password}
 
-        r = requests.post(url, headers=headers, json=payload)
+        r = requests.post(url, headers=headers, json=payload, timeout=3)
         return r.json()['jwt']
 
     def create_custom_gateway(self, user_id, url, username, password):

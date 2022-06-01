@@ -53,12 +53,6 @@ device_table = {
 }
 
 
-class BaseDevice():
-    @abstractmethod
-    def get_device_info(self):
-        pass
-
-
 class _Device():
     def __init__(self, device_model, device_base, device_url='', gateway_type=None, gateway_url='', gateway_token='', properties={}):
         self.device_model = device_model
@@ -91,7 +85,7 @@ class _Device():
         url = '{0}/things/'.format(self.gateway_url.rstrip('/'))
         headers = {'Authorization': 'Bearer {0}'.format(
             self.gateway_token), 'Accept': 'application/json'}
-        r = requests.get(url, timeout=5, headers=headers)
+        r = requests.get(url, timeout=3, headers=headers)
         data = r.json()
 
         self.device_list = {x['title']: {
@@ -117,7 +111,7 @@ class _Device():
             url = self.device_url
             headers = {}
 
-        r = requests.get(url, timeout=5, headers=headers)
+        r = requests.get(url, timeout=3, headers=headers)
         data = r.json()
 
         if device_base == 'gateway':
