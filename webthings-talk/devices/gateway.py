@@ -11,9 +11,7 @@ class _Gateway:
         self.user_token = user_token
         self.device_token = ''
 
-        self._get_device_token()
-
-    def _get_device_token(self):
+    def get_device_token(self):
         url = '{0}/oauth/allow?response_type=code&client_id=local-token&scope=%2Fthings%3Areadwrite&redirect_uri=https%3A%2F%2Fgateway.localhost%2Foauth%2Flocal-token-service&jwt={1}'.format(
             self.url, self.user_token)
 
@@ -28,6 +26,7 @@ class _GatewayHander():
             settings.DEFAULT_GATEWAY_URL, settings.DEFAULT_GATEWAY_USERNAME, settings.DEFAULT_GATEWAY_PASSWORD)
         self.default_gateway = _Gateway(
             settings.DEFAULT_GATEWAY_URL, default_gateway_user_token)
+        self.default_gateway.get_device_token()
 
         self._custom_gateway = {}
 
@@ -44,9 +43,11 @@ class _GatewayHander():
         url = url.rstrip('/')
         user_token = self._get_user_token(url, username, password)
         self._custom_gateway[user_id] = _Gateway(url, user_token)
+        self._custom_gateway[user_id].get_device_token()
 
     def create_custom_gateway_by_token(self, user_id, url, user_token):
         self._custom_gateway[user_id] = _Gateway(url, user_token)
+        self._custom_gateway[user_id].get_device_token()
 
     def get_custom_gateway(self, user_id):
         return self._custom_gateway.get(user_id, None)

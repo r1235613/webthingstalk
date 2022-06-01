@@ -107,9 +107,6 @@ class ConnectNativeDeviceView(FormView):
         try:
             device_handler.temp_device_get_info(self.user_id)
         except RuntimeError:
-            device_handler.delete_temp_device(self.user_id)
-            device_handler.create_temp_device(
-                self.user_id, device_model, device_base)
             messages.error(
                 self.request, 'Connection failed, please check Device URL.')
             return super().form_valid(form)
@@ -196,6 +193,10 @@ class ConnectGatewayView(FormView):
                 gateway_hander.create_custom_gateway_by_token(
                     self.user_id, gateway_url, user_token)
         except:
+            device_handler.delete_temp_device(self.user_id)
+            device_handler.create_temp_device(
+                self.user_id, device_model, device_base, gateway_type=gateway_type)
+            print(device_handler.get_temp_device(self.user_id).gateway_url)
             messages.error(
                 self.request, 'Connection failed, please check Gateway URL, Username and Password.')
             return super().form_valid(form)
