@@ -36,23 +36,18 @@
               {% if user.is_authenticated %}
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle d-flex align-items-center" id="userInfoDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true">
-                    <img class="me-1" style="width: 25px; height: 25px; border-radius: 50%;" src="{% gravatar_url user.email size=25 %}" alt="{% translate "Gravatar is not available right now"%}"></img>
-                    <span class="fs-5">{{ user.username }}</span>
+                    <span class="fs-5">Account</span>
                   </a>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userInfoDropdown" aria-expanded="false">
+                    <li>
+                      <span class="dropdown-item">{{ user.username }}</span>
+                    </li>
                     <li>
                       <button class="btn dropdown-item" data-bs-toggle="modal" data-bs-target="#LogoutModal">
                         {% translate "Logout" %}
                       </button>
                     </li>
                   </ul>
-                </li>
-              {% else %}
-              <!-- https://getbootstrap.com/docs/5.0/components/button-group/#button-toolbar -->
-                <li class="nav-item">
-                  <a class="fs-5 nav-link" href="{% url "xtalk_template:auth_redirect_endpoint" %}" role="button">
-                    {% translate "Login" %}
-                  </a>
                 </li>
               {% endif %}
             </ul>

@@ -166,6 +166,7 @@ XTALK_OAUTH2_CLIENT_SECRET = 'uQUjC3yQNNRHlLiDkTiQcylhGB0eTquMcf3ylPVi9XvlGZwZEU
 XTALK_OAUTH2_REDIRECT_URI = 'https://127.0.0.1:8000/auth/callback'
 XTALK_OIDC_DISCOVERY_ENDPOINT = 'https://account-test.iottalk2.tw/.well-known/openid-configuration'
 XTALK_OAUTH2_REVOCATION_ENDPOINT = 'https://account-test.iottalk2.tw/oauth2/v1/revoke/'
+LOGOUT_REDIRECT_URL = "https://account-test.iottalk2.tw/accounts/logout/"
 
 # Default WebThings Gateway
 DEFAULT_GATEWAY_URL = 'http://192.168.52.140:8080'
