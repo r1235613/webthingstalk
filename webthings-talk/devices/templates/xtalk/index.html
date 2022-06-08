@@ -77,14 +77,14 @@
             <label class="col-sm-3">Device URL List</label>
             <div class="col-sm-6">{{ form.native_url_list }}</div>
             <div class="col-sm-1">
-              <button id="delete_native_device_url_button" type="submit" class="btn btn-danger btn-sm" formaction="/delete-native-device-url" style="display:none">Delete</button>
+              <button id="delete_native_device_url_button" type="submit" formaction="/delete-native-device-url" style="display:none">Delete</button>
             </div>
           </div>
 
           <div class="row mb-2 align-items-center" id="native_device_url_block" style="display:none">
             <div class="col-sm-6 offset-sm-3">{{ form.native_device_url }}</div>
             <div class="col-sm-2">
-              <button id="connect_native_device_button" type="submit" class="btn btn-primary btn-sm" formaction="/connect-native-device">Add</button>
+              <button id="connect_native_device_button" type="submit" formaction="/connect-native-device">Add</button>
             </div>
           </div>
         {% elif temp_device.device_base == 'gateway' %}
@@ -110,7 +110,7 @@
               <label class="col-sm-3">Gateway URL List</label>
               <div class="col-sm-6">{{ form.gateway_url_list }}</div>
               <div class="col-sm-1">
-                <button id="delete_gateway_url_button" type="submit" class="btn btn-danger btn-sm" formaction="/delete-gateway-url" style="display:none">Delete</button>
+                <button id="delete_gateway_url_button" type="submit" formaction="/delete-gateway-url" style="display:none">Delete</button>
               </div>
             </div>
 
@@ -123,7 +123,7 @@
                 <div class="col-sm-3 offset-sm-3">{{ form.custom_gateway_username }}</div>
                 <div class="col-sm-3">{{ form.custom_gateway_password }}</div>
                 <div class="col-sm-2">
-                  <button id="connect_custom_gateway_button" type="submit" class="btn btn-primary btn-sm" formaction="/connect-gateway">Add</button>
+                  <button id="connect_custom_gateway_button" type="submit" formaction="/connect-gateway">Add</button>
                 </div>
               </div>
             </div>
