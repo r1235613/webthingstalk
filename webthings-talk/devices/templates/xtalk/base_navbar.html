@@ -34,21 +34,9 @@
               Ref: https://docs.djangoproject.com/en/3.1/topics/auth/default/#authentication-data-in-templates
               {% endcomment %}
               {% if user.is_authenticated %}
-                <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle d-flex align-items-center" id="userInfoDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true">
-                    <span class="fs-5">Account</span>
-                  </a>
-                  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userInfoDropdown" aria-expanded="false">
-                    <li>
-                      <span class="dropdown-item">{{ user.username }}</span>
-                    </li>
-                    <li>
-                      <button class="btn dropdown-item" data-bs-toggle="modal" data-bs-target="#LogoutModal">
-                        {% translate "Logout" %}
-                      </button>
-                    </li>
-                  </ul>
-                </li>
+                <button class="btn" data-bs-toggle="modal" data-bs-target="#LogoutModal">
+                  {% translate "Logout" %}
+                </button>
               {% endif %}
             </ul>
           </div>
