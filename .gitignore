@@ -6,3 +6,4 @@ _/env/.env
 tags
 upload
 django-x-talk-template/
+.DS_Store
