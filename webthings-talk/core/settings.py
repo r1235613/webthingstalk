@@ -9,9 +9,13 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 '''
+import os
+import sys
 
 from pathlib import Path
-import sys
+
+from dotenv import load_dotenv
+
 from django.contrib.messages import constants as messages
 
 
@@ -28,12 +32,17 @@ sys.modules['fontawesome_free'] = __import__('fontawesome-free')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load the env to the environment variables
+load_dotenv(os.path.join(BASE_DIR, 'core/env/env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-juvbooq=my2)1@*c4-1tkheklo@qoaw#i!e$=8+lj(27g0g&yv'
+SECRET_KEY = os.getenv('SECRET_KEY')
+
+# resolve SESSION_COOKIE_NAME conflict if there are 2 django application on localhost
+SESSION_COOKIE_NAME = "mycookie"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -42,7 +51,6 @@ ALLOWED_HOSTS = ['*']
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -50,10 +58,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'devices.apps.DevicesConfig',
-    'xtalk_template',
+    'webthingstalk.apps.WebThingsTalkConfig',
     'fontawesome_free',
     'sslserver',
+    'development',  # override template should place before xtalk_template
+    'xtalk_template'
 ]
 
 MIDDLEWARE = [
@@ -90,20 +99,10 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'webthingstalk',
-        'USER': 'postgres',
-        'PASSWORD': 'asdf1234',
-        'HOST': '192.168.52.140',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -153,22 +152,25 @@ STATICFILES_DIRS = [
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Django X Talk Template
-AUTH_USER_MODEL = 'devices.User'
-XTALK_REFRESHTOKEN_MODEL = 'devices.RefreshToken'
-XTALK_ACCESSTOKEN_MODEL = 'devices.AccessToken'
+AUTH_USER_MODEL = 'development.User'
+REFRESHTOKEN_MODEL = 'development.RefreshToken'
+ACCESSTOKEN_MODEL = 'development.AccessToken'
 
-XTALK_OAUTH2_CLIENT_ID = 'MB5Qzv4qxH4engGU2xJUZq2jpz4OCae59H8dXV3m'
-XTALK_OAUTH2_CLIENT_SECRET = 'uQUjC3yQNNRHlLiDkTiQcylhGB0eTquMcf3ylPVi9XvlGZwZEUSG1G2WphewtEavXzGkVWRi0BHu3bnhZH5P9XUVQnAmS2vPFFVqqzpox0bRxvGmt8S1POi1zkRpZSs9Ype5gIx6Ri3uCOJ2ESJ89HGZXRPeixxO'
-XTALK_OAUTH2_REDIRECT_URI = 'https://127.0.0.1:8000/auth/callback'
-XTALK_OIDC_DISCOVERY_ENDPOINT = 'https://account-test.iottalk2.tw/.well-known/openid-configuration'
-XTALK_OAUTH2_REVOCATION_ENDPOINT = 'https://account-test.iottalk2.tw/oauth2/v1/revoke/'
-LOGOUT_REDIRECT_URL = "https://account-test.iottalk2.tw/"
+XTALK_OAUTH2_CLIENT_ID = os.getenv('OAUTH2_CLIENT_ID')
+XTALK_OAUTH2_CLIENT_SECRET = os.getenv('OAUTH2_CLIENT_SECRET')
+XTALK_OAUTH2_REDIRECT_URI = os.getenv('OAUTH2_REDIRECT_URI')
+XTALK_ACCOUNT_HOST = os.getenv('ACCOUNT_HOST')
+XTALK_OIDC_DISCOVERY_ENDPOINT = os.getenv('OIDC_DISCOVERY_ENDPOINT')
+XTALK_OAUTH2_AUTHORIZATION_ENDPOINT = os.getenv(
+    'OAUTH2_AUTHORIZATION_ENDPOINT')
+XTALK_OAUTH2_TOKEN_ENDPOINT = os.getenv('OAUTH2_TOKEN_ENDPOINT')
+XTALK_OAUTH2_REVOCATION_ENDPOINT = os.getenv('OAUTH2_REVOCATION_ENDPOINT')
 
-# Default WebThings Gateway
-DEFAULT_GATEWAY_URL = 'http://192.168.52.140:8080'
-DEFAULT_GATEWAY_USERNAME = 'iottalk@iottalk.tw'
-DEFAULT_GATEWAY_PASSWORD = 'iottalk'
+# WebThingsTalk
+WEBTHINGSTALK_URI = os.getenv('WEBTHINGSTALK_URI')
+DEFAULT_GATEWAY_URI = os.getenv('DEFAULT_GATEWAY_URI')
+DEFAULT_GATEWAY_USERNAME = os.getenv('DEFAULT_GATEWAY_USERNAME')
+DEFAULT_GATEWAY_PASSWORD = os.getenv('DEFAULT_GATEWAY_PASSWORD')

@@ -10,8 +10,7 @@ from .device import device_table
 DEVICE_MODELS_CHOICES = [(x['device_model'], x['device_model'])
                          for _, x in device_table.items()]
 
-DEVICE_BASE_CHOICES = [('', 'select...'), ('gateway',
-                                           'Gateway Base'), ('native', 'Native Base')]
+DEVICE_BASE_CHOICES = [('', 'select...'), ('native', 'Direct (Native Device)'), ('gateway', 'Indirect (Via Gateway)')]
 
 GATEWAY_CHOICES = [('default', 'Default Gateway'),
                    ('custom', 'Custom Gateway')]

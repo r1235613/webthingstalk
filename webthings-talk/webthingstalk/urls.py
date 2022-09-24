@@ -7,8 +7,7 @@ from . import views
 app_name = 'xtalk_template'
 
 urlpatterns = [
-    path('', login_required(views.IndexView.as_view(),
-         login_url='/auth'), name='index'),
+    path('', views.IndexView.as_view(), name='index'),
     path('device-base', views.DeviceBaseView.as_view(),
          name='device_base_endpoint'),
     path('connect-native-device', views.ConnectNativeDeviceView.as_view(),

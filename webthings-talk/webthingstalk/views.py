@@ -3,58 +3,74 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.views.generic.edit import FormView
+from django.views.generic.base import TemplateView
+from django.shortcuts import render
 
-from xtalk_template.views import IndexView
+from xtalk_template.views import TEMPLATE_DIRECTORY_PREFIX, oauth2_client
 
 from .forms import DeviceForm, DeviceDeleteForm
-from .models import User, Device, DeviceUrl, GatewayUrl
+from .models import Device, DeviceUrl, GatewayUrl
+
+from development.models import User
 
 from .device import device_handler
 from .gateway import gateway_hander
 
 
-user_temp_device = {}
+class IndexView(TemplateView):
+    template_name = '{}/index.html'.format(TEMPLATE_DIRECTORY_PREFIX)
 
-
-class IndexView(IndexView):
-    def get_context_data(self, **kwargs):
-        context = super(IndexView, self).get_context_data(**kwargs)
-
-        if self.request.user.username == '':
-            return context
-
-        user_id = User.objects.get(username=self.request.user.username).id
-
-        context['temp_device'] = device_handler.get_temp_device(user_id)
-        context['user_devices'] = Device.objects.filter(user_id=user_id).all()
-        context['default_gateway_username'] = settings.DEFAULT_GATEWAY_USERNAME
-        context['default_gateway_password'] = settings.DEFAULT_GATEWAY_PASSWORD
+    def __gen_form(self, user_id):
+        temp_device = device_handler.get_temp_device(user_id)
 
         native_urls = [(x['url'], x['url'])
                        for x in DeviceUrl.objects.filter(user_id=user_id).values()]
         gateway_urls = [(x['url'], x['url'])
                         for x in GatewayUrl.objects.filter(user_id=user_id).values()]
 
-        context['form'] = DeviceForm(
+        return DeviceForm(
             native_url_choices=[
                 ('', 'select...'), ('add', 'Add new device'), *native_urls],
             gateway_url_choices=[
                 ('', 'select...'), ('add', 'Add new gateway'), *gateway_urls],
             gateway_device_choices=[
-                ('', 'select...'), *[(name, name) for name,
-                                     _ in context['temp_device'].device_list.items()]
+                ('', 'select...'), *[(name, name)
+                                     for name, _ in temp_device.device_list.items()]
             ],
             initial={
-                'device_model': context['temp_device'].device_model,
-                'device_base': context['temp_device'].device_base,
-                'native_url_list': context['temp_device'].device_url,
-                'gateway_type': context['temp_device'].gateway_type,
-                'gateway_url_list': context['temp_device'].gateway_url,
-                'gateway_device_list': context['temp_device'].device_name
+                'device_model': temp_device.device_model,
+                'device_base': temp_device.device_base,
+                'native_url_list': temp_device.device_url,
+                'gateway_type': temp_device.gateway_type,
+                'gateway_url_list': temp_device.gateway_url,
+                'gateway_device_list': temp_device.device_name
             }
         )
 
-        return context
+    http_method_names = [
+        'get',
+    ]
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return oauth2_client.iottalk.authorize_redirect(
+                request,
+                redirect_uri=settings.OAUTH2_REDIRECT_URI
+            )
+
+        user_id = User.objects.get(username=request.user.username).id
+
+        return render(
+            request,
+            '{}/index.html'.format(TEMPLATE_DIRECTORY_PREFIX),
+            {
+                'temp_device': device_handler.get_temp_device(user_id),
+                'user_devices': Device.objects.filter(user_id=user_id).all(),
+                'default_gateway_username': settings.DEFAULT_GATEWAY_USERNAME,
+                'default_gateway_password': settings.DEFAULT_GATEWAY_PASSWORD,
+                'form': self.__gen_form(user_id)
+            }
+        )
 
 
 class DeviceBaseView(FormView):

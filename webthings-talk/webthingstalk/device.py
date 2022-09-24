@@ -1,12 +1,12 @@
 import json
 import requests
-import iottalk_webthing
+import adapter_modules
 from datetime import datetime
 
-from .models import User, Device
-from .gateway import gateway_hander
+from .models import Device
+from development.models import User
 
-from abc import abstractmethod
+from .gateway import gateway_hander
 
 device_table = {
     'Light': {
@@ -21,12 +21,12 @@ device_table = {
             },
         },
         'device_model': 'WT_Light',
-        'module': iottalk_webthing.Light,
+        'module': adapter_modules.Light,
     },
     'OnOffSwitch': {
         'properties': {'OnOffProperty': {'idf': ['wtOnOff-I'], 'odf': ['wtOnOff-O']}},
         'device_model': 'WT_OnOffSwitch',
-        'module': iottalk_webthing.OnOffSwitch,
+        'module': adapter_modules.OnOffSwitch,
     },
     'ColorControl': {
         'properties': {
@@ -38,7 +38,7 @@ device_table = {
             },
         },
         'device_model': 'WT_ColorControl',
-        'module': iottalk_webthing.OnOffSwitch,
+        'module': adapter_modules.OnOffSwitch,
     },
     'PushButton': {
         'properties': {
@@ -48,7 +48,7 @@ device_table = {
             },
         },
         'device_model': 'WT_PushButton',
-        'module': iottalk_webthing.PushButton,
+        'module': adapter_modules.PushButton,
     },
 }
 
@@ -228,7 +228,7 @@ class _DeviceHander():
     def _create_device_autogen(self, device):
         obj = device_table[device.device_model]['module']
         dev = obj(
-            'http://192.168.52.140/csm',
+            'http://192.168.52.151/csm',
             device.device_url,
             device_name=device.device_name,
             property_table=device.properties,
@@ -243,7 +243,7 @@ class _DeviceHander():
             user_id=user_id, device_name=device_name).first()
 
         r = requests.post(
-            'http://192.168.52.140/autogen/delete_device/', json={'token': dev.token})
+            'http://192.168.52.151/autogen/delete_device/', json={'token': dev.token})
         print(r.status_code, r.text)
         Device.objects.filter(
             user_id=user_id, device_name=device_name).delete()

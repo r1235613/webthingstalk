@@ -19,7 +19,7 @@ class OnOffSwitch():
         self._gen_code()
 
     def create_device(self):
-        r = requests.post('http://192.168.52.140/autogen/create_device/', json={'code': self.code})
+        r = requests.post('http://192.168.52.151/autogen/create_device/', json={'code': self.code})
 
         token = json.loads(r.text).get('token', 'None')
         return token

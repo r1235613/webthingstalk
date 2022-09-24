@@ -23,9 +23,9 @@ class _Gateway:
 class _GatewayHander():
     def __init__(self):
         default_gateway_user_token = self._get_user_token(
-            settings.DEFAULT_GATEWAY_URL, settings.DEFAULT_GATEWAY_USERNAME, settings.DEFAULT_GATEWAY_PASSWORD)
+            settings.DEFAULT_GATEWAY_URI, settings.DEFAULT_GATEWAY_USERNAME, settings.DEFAULT_GATEWAY_PASSWORD)
         self.default_gateway = _Gateway(
-            settings.DEFAULT_GATEWAY_URL, default_gateway_user_token)
+            settings.DEFAULT_GATEWAY_URI, default_gateway_user_token)
         self.default_gateway.get_device_token()
 
         self._custom_gateway = {}

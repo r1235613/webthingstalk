@@ -1,0 +1,34 @@
+# The Secret key must be unpredictable and it should not be exposed
+SECRET_KEY="<your_secret_key>"
+
+# OAuth 2.0 Client ID
+OAUTH2_CLIENT_ID="OtK5YzvjTojhpFSWi2DatoYUHPYQMHtFXFax9c0c"
+
+# OAuth 2.0 Client Secret
+OAUTH2_CLIENT_SECRET="VxkzNt8jLQCR02QDWFLyCCaYsyJh7qiNeir7GGgxiX7v5tHOGKZvyxXMNmBLyrR8jD3cJct6KBGS6a1iX3zAxlf1FTIEeQuwyqw3Q2kP38WsYThKAzSbT9589CUXrEjn8i2csvKtnQlXU3EZ1eSKEDk1Xc60FYFE"
+
+# OAuth 2.0 Redirect URI
+OAUTH2_REDIRECT_URI="https://127.0.0.1:8000/auth/callback"
+
+# Base URL of Account System
+ACCOUNT_HOST="https://iottalk.yuching.app/account"
+
+# OpenID Connect Discovery Endpoint
+OIDC_DISCOVERY_ENDPOINT=${ACCOUNT_HOST}/.well-known/openid-configuration
+
+# OAuth 2.0 Authorization Endpoint
+OAUTH2_AUTHORIZATION_ENDPOINT=${ACCOUNT_HOST}/oauth2/v1/authorize/
+
+# OAuth 2.0 token endpoint
+OAUTH2_TOKEN_ENDPOINT=${ACCOUNT_HOST}/oauth2/v1/token/
+
+# OAuth 2.0 Revocation Endpoint
+OAUTH2_REVOCATION_ENDPOINT=${ACCOUNT_HOST}/oauth2/v1/revoke/
+
+# WebThingsTalk URI
+WEBTHINGSTALK_URI="https://127.0.0.1:8000"
+
+# WebTHingsTalk Default Gateway
+DEFAULT_GATEWAY_URI="http://192.168.52.98:8080"
+DEFAULT_GATEWAY_USERNAME="yuchingchen.tw@gmail.com"
+DEFAULT_GATEWAY_PASSWORD="fuqdiz-9nUrti-henmur"
