@@ -117,7 +117,8 @@ class _Device():
             if self.device_model not in models.keys():
                 self.device_model = max(models, key=models.get)
 
-            self.device_url = self.gateway_url + device['href']
+            self.device_url = self.gateway_url + \
+                device['href'] if self.device_base == 'gateway' else self.device_url
             self.device_name = device['title']
 
             device_property_types = {key: value['@type']
