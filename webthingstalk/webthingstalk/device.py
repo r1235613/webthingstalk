@@ -23,12 +23,10 @@ device_table = {
             },
             'OnOffProperty': {'idf': ['wtOnOff-I'], 'odf': ['wtOnOff-O']},
         },
-        # 'device_model': 'WT_Light',
         'module': adapter_modules.Light,
     },
     'OnOffSwitch': {
         'properties': {'OnOffProperty': {'idf': ['wtOnOff-I'], 'odf': ['wtOnOff-O']}},
-        # 'device_model': 'WT_OnOffSwitch',
         'module': adapter_modules.OnOffSwitch,
     },
     'ColorControl': {
@@ -40,7 +38,6 @@ device_table = {
                 'odf': ['wtColorTemperature-O']
             },
         },
-        # 'device_model': 'WT_ColorControl',
         'module': adapter_modules.ColorControl,
     },
     'PushButton': {
@@ -50,7 +47,6 @@ device_table = {
                 'odf': []
             },
         },
-        # 'device_model': 'WT_PushButton',
         'module': adapter_modules.PushButton,
     },
 }
