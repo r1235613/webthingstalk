@@ -1,126 +1,34 @@
-import json
-import requests
-from iottalkpy.dai import DAI
-from iottalkpy.dan import DeviceFeature
+from .BaseDevice import BaseDevice
 
 
-class PushButton(DAI):
+class PushButton(BaseDevice):
     def __init__(
         self,
-        api_url,
+        iottalk_url,
         webthing_url,
         property_table,
         gateway_token=None,
-        device_addr=None,
         device_name=None,
-        username=None,
-        register_callback=None,
-        on_register=None,
-        on_deregister=None,
-        on_connect=None,
-        on_disconnect=None,
-        push_interval=0.5,
-        interval=None,
     ):
-        device_features = {
-            "wtPushed-I1": DeviceFeature(
-                "wtPushed-I1",
-                "idf",
-                [None],
-                self.pushed_I1,
-                None
-            ),
-            "wtPushed-I2": DeviceFeature(
-                "wtPushed-I2",
-                "idf",
-                [None],
-                self.pushed_I2,
-                None
-            ),
-            "wtPushed-I3": DeviceFeature(
-                "wtPushed-I3",
-                "idf",
-                [None],
-                self.pushed_I3,
-                None
-            ),
-            "wtPushed-I4": DeviceFeature(
-                "wtPushed-I4",
-                "idf",
-                [None],
-                self.pushed_I4,
-                None
-            )
-        }
+        super().__init__(iottalk_url, webthing_url,
+                         property_table, gateway_token, device_name)
 
-        super().__init__(
-            api_url=api_url,
-            device_model="WT_PushButton",
-            device_addr=device_addr,
-            device_name=device_name,
-            persistent_binding=False,
-            username=username,
-            extra_setup_webpage="",
-            device_webpage="",
-            profile={},
-            register_callback=register_callback,
-            on_register=on_register,
-            on_deregister=on_deregister,
-            on_connect=on_connect,
-            on_disconnect=on_disconnect,
-            push_interval=push_interval,
-            interval=interval,
-            device_features=device_features,
+    def _gen_code(self):
+        pushed1_property_name = self._get_property_name('wtPushed-I1')
+        pushed2_property_name = self._get_property_name('wtPushed-I2')
+        pushed3_property_name = self._get_property_name('wtPushed-I3')
+        pushed4_property_name = self._get_property_name('wtPushed-I4')
+
+        with open('adapter_modules/PushButton.txt') as f:
+            code_template = f.read()
+
+        self.code = code_template.format(
+            api_url=self.api_url,
+            device_name=self.device_name,
+            webthing_url=self.webthing_url,
+            headers=self.headers,
+            pushed1_property_name=pushed1_property_name,
+            pushed2_property_name=pushed2_property_name,
+            pushed3_property_name=pushed3_property_name,
+            pushed4_property_name=pushed4_property_name
         )
-
-        self.webthing_url = webthing_url.rstrip('/')
-        self.gateway_token = gateway_token
-        self.property_table = property_table
-        self.device_type = 'gateway' if gateway_token != None else 'native'
-        self.headers = {'Accept': 'application/json'} if self.device_type == 'native' else {
-            'Authorization': 'Bearer {0}'.format(gateway_token), 'Accept': 'application/json'}
-
-    def _get_property_name(self, df):
-        for key, value in self.property_table.items():
-            if value['idf'] == df or value['odf'] == df:
-                return key
-
-    def pushed_I1(self):
-        property_name = self._get_property_name('wtPushed-I1')
-
-        if property_name != None:
-            r = requests.get(
-                '{0}/properties/{1}'.format(self.webthing_url, property_name), headers=self.headers)
-
-            return json.loads(r.text).get(
-                property_name, 'None') if self.device_type == 'native' else json.loads(r.text)
-
-    def pushed_I2(self):
-        property_name = self._get_property_name('wtPushed-I2')
-
-        if property_name != None:
-            r = requests.get(
-                '{0}/properties/{1}'.format(self.webthing_url, property_name), headers=self.headers)
-
-            return json.loads(r.text).get(
-                property_name, 'None') if self.device_type == 'native' else json.loads(r.text)
-
-    def pushed_I3(self):
-        property_name = self._get_property_name('wtPushed-I3')
-
-        if property_name != None:
-            r = requests.get(
-                '{0}/properties/{1}'.format(self.webthing_url, property_name), headers=self.headers)
-
-            return json.loads(r.text).get(
-                property_name, 'None') if self.device_type == 'native' else json.loads(r.text)
-
-    def pushed_I4(self):
-        property_name = self._get_property_name('wtPushed-I4')
-
-        if property_name != None:
-            r = requests.get(
-                '{0}/properties/{1}'.format(self.webthing_url, property_name), headers=self.headers)
-
-            return json.loads(r.text).get(
-                property_name, 'None') if self.device_type == 'native' else json.loads(r.text)

@@ -1,4 +1,4 @@
 from .Light import Light
+from .ColorControl import ColorControl
 from .OnOffSwitch import OnOffSwitch
-from .DummyDevice import DummyDevice
 from .PushButton import PushButton

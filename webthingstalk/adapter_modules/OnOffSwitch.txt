@@ -1,0 +1,20 @@
+import json
+import requests
+
+api_url = '{api_url}'
+device_name = '{device_name}'
+device_model = 'WT_OnOffSwitch'
+
+idf_list = ['wtOnOff-I']
+odf_list = ['wtOnOff-O']
+
+def wtOnOff_I():
+    r = requests.get('{webthing_url}/properties/{on_off_property_name}', headers={headers})
+    return json.loads(r.text).get('{on_off_property_name}', 'None')
+
+def wtOnOff_O(data):
+    r = requests.get('{webthing_url}/properties/{on_off_property_name}', headers={headers})
+    status = json.loads(r.text)['{on_off_property_name}']
+    if bool(status) == bool(data[0]):
+        return
+    requests.put('{webthing_url}/properties/{on_off_property_name}', json={{"{on_off_property_name}": bool(data[0])}}, headers={headers})
