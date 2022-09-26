@@ -25,6 +25,9 @@ OAUTH2_TOKEN_ENDPOINT=${ACCOUNT_HOST}/oauth2/v1/token/
 # OAuth 2.0 Revocation Endpoint
 OAUTH2_REVOCATION_ENDPOINT=${ACCOUNT_HOST}/oauth2/v1/revoke/
 
+# IoTtalk URI
+IOTTALK_URI="https://iottalk.yuching.app"
+
 # WebThingsTalk URI
 WEBTHINGSTALK_URI="https://127.0.0.1:8000"
 

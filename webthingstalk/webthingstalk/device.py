@@ -3,6 +3,8 @@ import requests
 import adapter_modules
 from datetime import datetime
 
+from django.conf import settings
+
 from .models import Device
 from development.models import User
 
@@ -228,7 +230,7 @@ class _DeviceHander():
     def _create_device_autogen(self, device):
         obj = device_table[device.device_model]['module']
         dev = obj(
-            'http://192.168.52.151/csm',
+            settings.IOTTALK_URI,
             device.device_url,
             device_name=device.device_name,
             property_table=device.properties,
@@ -243,8 +245,7 @@ class _DeviceHander():
             user_id=user_id, device_name=device_name).first()
 
         r = requests.post(
-            'http://192.168.52.151/autogen/delete_device/', json={'token': dev.token})
-        print(r.status_code, r.text)
+            '{0}/autogen/delete_device/'.format(settings.IOTTALK_URI), json={'token': dev.token})
         Device.objects.filter(
             user_id=user_id, device_name=device_name).delete()
 

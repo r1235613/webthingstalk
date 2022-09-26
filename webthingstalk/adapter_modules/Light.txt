@@ -1,0 +1,32 @@
+import json
+import requests
+
+api_url = '{api_url}'
+device_name = '{device_name}'
+device_model = 'WT_Light'
+
+idf_list = ['wtBrightness-I', 'wtColor-I', 'wtColorMode-I', 'wtColorTemp-I', 'wtOnOff-I']
+odf_list = ['wtBrightness-O', 'wtColor-O', 'wtColorTemp-O', 'wtOnOff-O']
+
+def wtOnOff_I():
+    r = requests.get('{webthing_url}/properties/{on_off_i_property_name}', headers={headers})
+    return json.loads(r.text).get('{on_off_i_property_name}', 'None')
+
+def wtOnOff_O(data):
+    r = requests.get('{webthing_url}/properties/{on_off_o_property_name}', headers={headers})
+    status = json.loads(r.text)['{on_off_o_property_name}']
+    if bool(status) == bool(data[0]):
+        return
+    print(status, bool(data[0]))
+
+    requests.put('{webthing_url}/properties/{on_off_o_property_name}', json={{"{on_off_o_property_name}": bool(data[0])}}, headers={headers})
+
+def wtBrightness_I():
+    r = requests.get('{webthing_url}/properties/{brightness_i_property_name}', headers={headers})
+    return json.loads(r.text).get('{brightness_i_property_name}', 'None')
+
+def wtBrightness_O(data):
+    r = requests.get('{webthing_url}/properties/{brightness_o_property_name}', headers={headers})
+    print(r.text)
+
+    requests.put('{webthing_url}/properties/{brightness_o_property_name}', json={{"{brightness_o_property_name}": data[0]}}, headers={headers})

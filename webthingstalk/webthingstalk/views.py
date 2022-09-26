@@ -20,7 +20,7 @@ from .gateway import gateway_hander
 class IndexView(TemplateView):
     template_name = '{}/index.html'.format(TEMPLATE_DIRECTORY_PREFIX)
 
-    def __gen_form(self, user_id):
+    def _gen_form(self, user_id):
         temp_device = device_handler.get_temp_device(user_id)
 
         native_urls = [(x['url'], x['url'])
@@ -55,7 +55,7 @@ class IndexView(TemplateView):
         if not request.user.is_authenticated:
             return oauth2_client.iottalk.authorize_redirect(
                 request,
-                redirect_uri=settings.OAUTH2_REDIRECT_URI
+                redirect_uri=settings.XTALK_OAUTH2_REDIRECT_URI
             )
 
         user_id = User.objects.get(username=request.user.username).id
@@ -68,7 +68,7 @@ class IndexView(TemplateView):
                 'user_devices': Device.objects.filter(user_id=user_id).all(),
                 'default_gateway_username': settings.DEFAULT_GATEWAY_USERNAME,
                 'default_gateway_password': settings.DEFAULT_GATEWAY_PASSWORD,
-                'form': self.__gen_form(user_id)
+                'form': self._gen_form(user_id)
             }
         )
 
