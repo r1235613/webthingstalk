@@ -33,7 +33,7 @@ sys.modules['fontawesome_free'] = __import__('fontawesome-free')
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load the env to the environment variables
-load_dotenv(os.path.join(BASE_DIR, 'core/env/env'))
+load_dotenv(os.path.join(BASE_DIR, '../conf/env/env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -45,10 +45,10 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 SESSION_COOKIE_NAME = "mycookie"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEPLOYMENT') != 'True'
+print('DEBUG:', DEBUG)
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 INSTALLED_APPS = [
@@ -60,10 +60,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'webthingstalk.apps.WebThingsTalkConfig',
     'fontawesome_free',
-    'sslserver',
     'development',  # override template should place before xtalk_template
     'xtalk_template'
 ]
+if DEBUG == True:
+    INSTALLED_APPS.append('sslserver')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
