@@ -84,14 +84,12 @@ class DeviceBaseView(FormView):
         device_model = form.data.get('device_model', '')
         device_base = form.data.get('device_base', 'gateway')
 
-        print(device_model)
-
         device_handler.delete_temp_device(user_id)
 
         if device_base == 'gateway':
             device_handler.create_temp_device(
                 user_id, device_model, device_base, gateway_type='default')
-            device_handler.temp_device_get_gateway_device(user_id)
+            device_handler.temp_device_get_gateway_device(user_id)  # 先幫 Default Gateway 抓一次 DeviceList
         else:
             device_handler.create_temp_device(
                 user_id, device_model, device_base)
@@ -172,9 +170,14 @@ class GatewayTypeView(FormView):
         device_base = form.data.get('device_base', 'gateway')
         gateway_type = form.data.get('gateway_type', 'default')
 
+        gateway_hander.delete_custom_gateway(user_id)
         device_handler.delete_temp_device(user_id)
+
         device_handler.create_temp_device(
             user_id, device_model, device_base, gateway_type=gateway_type)
+
+        if gateway_type == 'default':
+            device_handler.temp_device_get_gateway_device(user_id)
 
         return super().form_valid(form)
 

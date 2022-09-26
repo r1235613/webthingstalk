@@ -39,6 +39,9 @@ class _GatewayHander():
         r = requests.post(url, headers=headers, json=payload, timeout=3)
         return r.json()['jwt']
 
+    def delete_custom_gateway(self, user_id):
+        self._custom_gateway.pop(user_id, None)
+
     def create_custom_gateway(self, user_id, url, username, password):
         url = url.rstrip('/')
         user_token = self._get_user_token(url, username, password)
