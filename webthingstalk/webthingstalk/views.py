@@ -84,6 +84,8 @@ class DeviceBaseView(FormView):
         device_model = form.data.get('device_model', '')
         device_base = form.data.get('device_base', 'gateway')
 
+        print(device_model)
+
         device_handler.delete_temp_device(user_id)
 
         if device_base == 'gateway':

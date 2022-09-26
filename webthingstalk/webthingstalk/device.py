@@ -1,4 +1,5 @@
 import json
+from pyexpat import model
 import requests
 import adapter_modules
 from datetime import datetime
@@ -13,21 +14,21 @@ from .gateway import gateway_hander
 device_table = {
     'Light': {
         'properties': {
-            'OnOffProperty': {'idf': ['wtOnOff-I'], 'odf': ['wtOnOff-O']},
             'BrightnessProperty': {'idf': ['wtBrightness-I'], 'odf': ['wtBrightness-O']},
             'ColorModeProperty': {'idf': ['wtColorMode-I'], 'odf': []},
             'ColorProperty': {'idf': ['wtColor-I'], 'odf': ['wtColor-O']},
             'ColorTemperatureProperty': {
-                'idf': ['wtColorTemp-I'],
-                'odf': ['wtColorTemp-O']
+                'idf': ['wtColorTemperature-I'],
+                'odf': ['wtColorTemperature-O']
             },
+            'OnOffProperty': {'idf': ['wtOnOff-I'], 'odf': ['wtOnOff-O']},
         },
-        'device_model': 'WT_Light',
+        # 'device_model': 'WT_Light',
         'module': adapter_modules.Light,
     },
     'OnOffSwitch': {
         'properties': {'OnOffProperty': {'idf': ['wtOnOff-I'], 'odf': ['wtOnOff-O']}},
-        'device_model': 'WT_OnOffSwitch',
+        # 'device_model': 'WT_OnOffSwitch',
         'module': adapter_modules.OnOffSwitch,
     },
     'ColorControl': {
@@ -35,12 +36,12 @@ device_table = {
             'ColorModeProperty': {'idf': ['wtColorMode-I'], 'odf': []},
             'ColorProperty': {'idf': ['wtColor-I'], 'odf': ['wtColor-O']},
             'ColorTemperatureProperty': {
-                'idf': ['wtColorTemp-I'],
-                'odf': ['wtColorTemp-O']
+                'idf': ['wtColorTemperature-I'],
+                'odf': ['wtColorTemperature-O']
             },
         },
-        'device_model': 'WT_ColorControl',
-        'module': adapter_modules.OnOffSwitch,
+        # 'device_model': 'WT_ColorControl',
+        'module': adapter_modules.ColorControl,
     },
     'PushButton': {
         'properties': {
@@ -49,7 +50,7 @@ device_table = {
                 'odf': []
             },
         },
-        'device_model': 'WT_PushButton',
+        # 'device_model': 'WT_PushButton',
         'module': adapter_modules.PushButton,
     },
 }
@@ -97,61 +98,55 @@ class _Device():
         origin_device_model = self.device_model
 
         try:
-            self._get_device_info(self.device_base)
-        except:
-            raise RuntimeError()
+            if self.device_base == 'gateway':
+                url = '{0}/things/'.format(self.gateway_url.rstrip('/'))
+                headers = {'Authorization': 'Bearer {0}'.format(
+                    self.gateway_token), 'Accept': 'application/json'}
+            else:
+                url = self.device_url
+                headers = {}
 
-        if 'WT_' + self.device_model != origin_device_model:
-            raise ValueError()
+            r = requests.get(url, timeout=3, headers=headers)
+            data = r.json()
 
-    def _get_device_info(self, device_base):
-        if device_base == 'gateway':
-            url = '{0}/things/'.format(self.gateway_url.rstrip('/'))
-            headers = {'Authorization': 'Bearer {0}'.format(
-                self.gateway_token), 'Accept': 'application/json'}
-        else:
-            url = self.device_url
-            headers = {}
-
-        r = requests.get(url, timeout=3, headers=headers)
-        data = r.json()
-
-        if device_base == 'gateway':
             device = list(
-                filter(lambda x: x['title'] == self.select_device, data))[0]
+                filter(lambda x: x['title'] == self.select_device, data))[0] if self.device_base == 'gateway' else data
             models = {x: len(device_table[x]['properties'])
                       for x in device['@type']}
 
-            self.device_model = max(models, key=models.get)
+            if self.device_model not in models.keys():
+                self.device_model = max(models, key=models.get)
 
             self.device_url = self.gateway_url + device['href']
             self.device_name = device['title']
-            property_types = {key: value['@type']
-                              for key, value in device['properties'].items()}
-        else:
-            # 選擇最多屬性的裝置
-            models = {x: len(device_table[x]['properties'])
-                      for x in data['@type']}
-            self.device_model = max(models, key=models.get)
-            property_types = {key: value['@type']
-                              for key, value in data['properties'].items()}
-            self.device_name = data['title']
 
-        self.properties = {}
-        property_cnt_dict = {}
-        for key, value in property_types.items():
-            property = device_table[self.device_model]['properties'][value]
-            property_cnt = property_cnt_dict.get(value, 0)
+            device_property_types = {key: value['@type']
+                                     for key, value in device['properties'].items()}
 
-            self.properties[key] = {
-                'property': value,
-                'idf': property['idf'][property_cnt] if property_cnt < len(property['idf']) else None,
-                'odf': property['odf'][property_cnt] if property_cnt < len(property['odf']) else None
-            }
+            model_properties = device_table[self.device_model]['properties'].keys(
+            )
 
-            property_cnt_dict[value] = property_cnt + 1
+            self.properties = {}
+            property_cnt_dict = {}
+            for key, value in device_property_types.items():
+                if value in model_properties:
+                    property = device_table[self.device_model]['properties'][value]
+                    property_cnt = property_cnt_dict.get(value, 0)
 
-        self.connected = True
+                    self.properties[key] = {
+                        'property': value,
+                        'idf': property['idf'][property_cnt] if property_cnt < len(property['idf']) else None,
+                        'odf': property['odf'][property_cnt] if property_cnt < len(property['odf']) else None
+                    }
+
+                    property_cnt_dict[value] = property_cnt + 1
+
+            self.connected = True
+        except:
+            raise RuntimeError()
+
+        if origin_device_model not in models.keys():
+            raise ValueError()
 
 
 class _DeviceHander():

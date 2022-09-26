@@ -7,10 +7,10 @@ from django.utils.safestring import mark_safe
 from .device import device_table
 
 
-DEVICE_MODELS_CHOICES = [(x['device_model'], x['device_model'])
-                         for _, x in device_table.items()]
+DEVICE_MODELS_CHOICES = [(x, 'WT_{0}'.format(x)) for x in device_table.keys()]
 
-DEVICE_BASE_CHOICES = [('', 'select...'), ('native', 'Direct (Native Device)'), ('gateway', 'Indirect (Via Gateway)')]
+DEVICE_BASE_CHOICES = [('', 'select...'), ('native',
+                                           'Direct (Native Device)'), ('gateway', 'Indirect (Via Gateway)')]
 
 GATEWAY_CHOICES = [('default', 'Default Gateway'),
                    ('custom', 'Custom Gateway')]
