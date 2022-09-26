@@ -1,3 +1,5 @@
+import os
+from django.conf import settings
 from .BaseDevice import BaseDevice
 
 
@@ -21,7 +23,7 @@ class Light(BaseDevice):
             'wtColorTemperature-I')
         on_off_property_name = self._get_property_name('wtOnOff-I')
 
-        with open('adapter_modules/Light.txt') as f:
+        with open(os.path.join(settings.BASE_DIR, 'adapter_modules/Light.txt')) as f:
             code_template = f.read()
 
         self.code = code_template.format(

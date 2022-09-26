@@ -1,3 +1,5 @@
+import os
+from django.conf import settings
 from .BaseDevice import BaseDevice
 
 
@@ -16,7 +18,7 @@ class OnOffSwitch(BaseDevice):
     def _gen_code(self):
         on_off_property_name = self._get_property_name('wtOnOff-I')
 
-        with open('adapter_modules/OnOffSwitch.txt') as f:
+        with open(os.path.join(settings.BASE_DIR, 'adapter_modules/OnOffSwitch.txt')) as f:
             code_template = f.read()
 
         self.code = code_template.format(

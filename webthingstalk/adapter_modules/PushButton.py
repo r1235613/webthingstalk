@@ -1,3 +1,5 @@
+import os
+from django.conf import settings
 from .BaseDevice import BaseDevice
 
 
@@ -19,7 +21,7 @@ class PushButton(BaseDevice):
         pushed3_property_name = self._get_property_name('wtPushed-I3')
         pushed4_property_name = self._get_property_name('wtPushed-I4')
 
-        with open('adapter_modules/PushButton.txt') as f:
+        with open(os.path.join(settings.BASE_DIR, 'adapter_modules/PushButton.txt')) as f:
             code_template = f.read()
 
         self.code = code_template.format(

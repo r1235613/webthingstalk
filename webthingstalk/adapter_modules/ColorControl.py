@@ -1,3 +1,5 @@
+import os
+from django.conf import settings
 from .BaseDevice import BaseDevice
 
 
@@ -19,7 +21,7 @@ class ColorControl(BaseDevice):
         color_temperature_name = self._get_property_name(
             'wtColorTemperature-I')
 
-        with open('adapter_modules/ColorControl.txt') as f:
+        with open(os.path.join(settings.BASE_DIR, 'adapter_modules/ColorControl.txt')) as f:
             code_template = f.read()
 
         self.code = code_template.format(
