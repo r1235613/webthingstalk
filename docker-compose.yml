@@ -14,8 +14,6 @@ services:
       - webthingstalk-static-data:/app/webthingstalk/static/
     networks:
       - webthingstalk-net
-    depends_on:
-      - db
     environment:
       - DEPLOYMENT=True
       - PIPENV_PIPFILE=/app/Pipfile
