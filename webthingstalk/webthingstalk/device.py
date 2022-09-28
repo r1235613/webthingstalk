@@ -14,7 +14,14 @@ from .gateway import gateway_hander
 device_table = {
     'Alarm': {
         'properties': {
-            'AlarmProperty': {'idf': ['wtAlarm-I'], 'odf': ['wtAlarm-O']},
+            'AlarmProperty': {'idf': ['wtAlarm-I'], 'odf': []},
+        },
+        'modules': adapter_modules.Alarm,
+    },
+    'AirQualitySensor': {
+        'properties': {
+            'ConcentrationProperty': {'idf': ['wtConcentration-I'], 'odf': []},
+            'DensityProperty': {'idf': ['wtDensity-I'], 'odf': []},
         },
         'modules': adapter_modules.Alarm,
     },

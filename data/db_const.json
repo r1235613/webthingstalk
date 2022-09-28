@@ -3974,8 +3974,7 @@
     {
       "dm_name": "WT_Alarm",
       "df_list": [
-        "wtAlarm-I",
-        "wtAlarm-O"
+        "wtAlarm-I"
       ]
     },
     {
