@@ -32,6 +32,6 @@ IOTTALK_URI="https://iottalk.yuching.app"
 WEBTHINGSTALK_URI="https://127.0.0.1:8000"
 
 # WebTHingsTalk Default Gateway
-DEFAULT_GATEWAY_URI="http://192.168.52.98:8080"
-DEFAULT_GATEWAY_USERNAME="yuchingchen.tw@gmail.com"
-DEFAULT_GATEWAY_PASSWORD="fuqdiz-9nUrti-henmur"
+DEFAULT_GATEWAY_URI="http://192.168.113.104:8080"
+DEFAULT_GATEWAY_USERNAME="iottalk@iottalk.tw"
+DEFAULT_GATEWAY_PASSWORD="iottalk"
