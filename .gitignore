@@ -7,3 +7,6 @@ tags
 upload
 django-x-talk-template/
 .DS_Store
+conf/nginx/ssl/dhparam.pem
+conf/nginx/ssl/nginx.crt
+conf/nginx/ssl/nginx.key
