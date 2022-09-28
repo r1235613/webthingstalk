@@ -23,7 +23,13 @@ device_table = {
             'ConcentrationProperty': {'idf': ['wtConcentration-I'], 'odf': []},
             'DensityProperty': {'idf': ['wtDensity-I'], 'odf': []},
         },
-        'modules': adapter_modules.Alarm,
+        'modules': adapter_modules.AirQualitySensor,
+    },
+    'BarometricPressureSensor': {
+        'properties': {
+            'BarometricPressureProperty': {'idf': ['wtBarometricPressure-I'], 'odf': []},
+        },
+        'modules': adapter_modules.BarometricPressureSensor,
     },
     'Light': {
         'properties': {
