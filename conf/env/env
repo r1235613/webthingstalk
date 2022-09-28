@@ -1,0 +1,37 @@
+# The Secret key must be unpredictable and it should not be exposed
+SECRET_KEY="<your_secret_key>"
+
+# OAuth 2.0 Client ID
+OAUTH2_CLIENT_ID="dBNc77chJaDHATCM0ej4jIVDV997Nnzye5Iyk5fk"
+
+# OAuth 2.0 Client Secret
+OAUTH2_CLIENT_SECRET="PHy8pIvtd5NzZ6WKrWDc40ennFhKDcZWRgEYh7FGk5O4bA8tcaA5wiqc9lE8xH12ItIbhxbf3K8Li1sSLojkA1gqSfQZKmSNtpZuHj72HVjGoFR3i0yZjffw6EZaEFeMGQj4RyL44oJWjgcAljnED8jksyP6R40y"
+
+# OAuth 2.0 Redirect URI
+OAUTH2_REDIRECT_URI="https://webthingstalk-yuching.mylabs.space/auth/callback"
+
+# Base URL of Account System
+ACCOUNT_HOST="https://iottalk-yuching.mylabs.space/account"
+
+# OpenID Connect Discovery Endpoint
+OIDC_DISCOVERY_ENDPOINT=${ACCOUNT_HOST}/.well-known/openid-configuration
+
+# OAuth 2.0 Authorization Endpoint
+OAUTH2_AUTHORIZATION_ENDPOINT=${ACCOUNT_HOST}/oauth2/v1/authorize/
+
+# OAuth 2.0 token endpoint
+OAUTH2_TOKEN_ENDPOINT=${ACCOUNT_HOST}/oauth2/v1/token/
+
+# OAuth 2.0 Revocation Endpoint
+OAUTH2_REVOCATION_ENDPOINT=${ACCOUNT_HOST}/oauth2/v1/revoke/
+
+# IoTtalk URI
+IOTTALK_URI="https://iottalk-yuching.mylabs.space"
+
+# WebThingsTalk URI
+WEBTHINGSTALK_URI="https://webthingstalk-yuching.mylabs.space"
+
+# WebTHingsTalk Default Gateway
+DEFAULT_GATEWAY_URI="http://webthingstalk-yuching.mylabs.space:8080"
+DEFAULT_GATEWAY_USERNAME="iottalk@iottalk.tw"
+DEFAULT_GATEWAY_PASSWORD="iottalk"

@@ -4,11 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django-xtalk-template = {path = "./django-x-talk-template"}
 fontawesome-free = "*"
 iottalk-py = "*"
 psycopg2-binary = "*"
 beautifulsoup4 = "*"
+python-dotenv = "*"
+django-jsonview = "*"
 
 [dev-packages]
 autopep8 = "*"

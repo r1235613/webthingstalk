@@ -1,0 +1,299 @@
+{% extends "./base_navbar.html" %} 
+
+{% block additional_static_files %}
+  <link rel="stylesheet" href="/static/main.css"/>
+{% endblock %}
+
+{% block title %} WebThingsTalk {% endblock %}
+
+{% block xtalk_brand_name %} WebThingsTalk {% endblock %}
+
+{% block nav_items %}
+{% endblock %}
+
+{% block body %}
+{% for message in messages %}
+  <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message | safe }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+{% endfor %}
+<div id="content" class="row">
+  <div id="left-window" class="col-sm-6" style="min-height: 766px">
+    <div id="device-container" class="container">
+      {% if user.is_authenticated %}
+        <label class="management-title">Device List</label>
+        {% if user_devices|length > 0 %}
+          {% for value in user_devices %}
+            <div class="manage-content">
+              <div class="do-container">
+                <div class="do-header" style="height: 40px">
+                  <form class="form-inline" method="post" action="/delete">
+                    {% csrf_token %}
+                    <input type="hidden" name="device_name" value="{{ value.device_name }}">
+                    <div class="do-setting" style="height: 40px">
+                      <button class="do-setting-img btn" type="submit">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </form>
+                  <div class="do-device">
+                    <span class="device-name" style="line-height: 40px">{{ value.device_name }} (DM: WT_{{ value.device_model }})</span>
+                  </div>
+                </div>
+                <div class="do-content">
+                  {% for val in value.property.all %}
+                    <div class="col dfo-container">
+                      <label class="dfo-name">{{ val.name }}: {{ val.property }} (IDF: {{ val.idf }}{% if val.odf != None %}, ODF: {{val.odf }}{% endif %})</label>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+  <div id="right-window" class="col-sm-6" style="min-height: 766px">
+      <label class="management-title mb-2">Create IoTtalk Device</label>
+      {% if user.is_authenticated %}
+      <form class="form-inline" method="post" id="create_iottalk_device_form">
+        {% csrf_token %}
+
+        <div class="row mb-2 align-items-center" id="device_model_block">
+          <label class="col-sm-3">Device Model</label>
+          <div class="col-sm-6">{{ form.device_model }}</div>
+        </div>
+
+        <div class="row mb-2 align-items-center" id="device_base_block">
+          <label class="col-sm-3">Connection Type</label>
+          <div class="col-sm-6">{{ form.device_base }}</div>
+        </div>
+
+        {% if temp_device.device_base == 'native' %}
+          <div class="row mb-2 align-items-center" id="native_url_list_block">
+            <label class="col-sm-3">Device URL List</label>
+            <div class="col-sm-6">{{ form.native_url_list }}</div>
+            <div class="col-sm-1">
+              <button id="delete_native_device_url_button" type="submit" formaction="/delete-native-device-url" style="display:none">Delete</button>
+            </div>
+          </div>
+
+          <div class="row mb-2 align-items-center" id="native_device_url_block" style="display:none">
+            <div class="col-sm-6 offset-sm-3">{{ form.native_device_url }}</div>
+            <div class="col-sm-2">
+              <button id="connect_native_device_button" type="submit" formaction="/connect-native-device">Add</button>
+            </div>
+          </div>
+        {% elif temp_device.device_base == 'gateway' %}
+          <div class="row mb-2 align-items-center" id="gateway_type_block">
+            <label class="col-sm-3">Gateway Type</label>
+            <div class="col-sm-6">{{ form.gateway_type }}</div>
+          </div>
+
+          {% if temp_device.gateway_type == 'default' %}
+            <div id="default_gateway_block">
+              <div class="row align-items-center" >
+                <div class="col-sm-6 offset-sm-3">Username: {{ default_gateway_username }}</div>
+              </div>
+              <div class="row mb-2 align-items-center" >
+                <div class="col-sm-6 offset-sm-3">Password: {{ default_gateway_password }}</div>
+              </div>
+            </div>
+            <div class="row mb-2 align-items-center" id="gateway_url_block">
+              <div class="col-sm-6 offset-sm-3"><a href="{{ temp_device.gateway_url }}" target="_blank">Click here to open gateway.</a></div>
+            </div>
+          {% elif temp_device.gateway_type == 'custom' %}
+            <div class="row mb-2 align-items-center" id="gateway_url_list_block">
+              <label class="col-sm-3">Gateway URL List</label>
+              <div class="col-sm-6">{{ form.gateway_url_list }}</div>
+              <div class="col-sm-1">
+                <button id="delete_gateway_url_button" type="submit" formaction="/delete-gateway-url" style="display:none">Delete</button>
+              </div>
+            </div>
+
+            <div class="mb-2 align-items-center" id="custom_gateway_block" style="display:none">
+              <div class="row mb-1">
+                <label class="col-sm-3">Gateway Info</label>
+                <div class="col-sm-6">{{ form.custom_gateway_url }}</div>
+              </div>
+              <div class="row mb-1">
+                <div class="col-sm-3 offset-sm-3">{{ form.custom_gateway_username }}</div>
+                <div class="col-sm-3">{{ form.custom_gateway_password }}</div>
+                <div class="col-sm-2">
+                  <button id="connect_custom_gateway_button" type="submit" formaction="/connect-gateway">Add</button>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="row mb-2 align-items-center" id="gateway_device_list_block">
+            <label class="col-sm-3">Gateway Device</label>
+            <div class="col-sm-6">{{ form.gateway_device_list }}</div>
+          </div>
+        {% endif %}
+
+        {% if temp_device.connected %}
+          <div class="row mb-2 align-items-center" id="device_name_block">
+            <label class="col-sm-3">Device Name</label>
+            <div class="col-sm-6">{{ temp_device.device_name }}</div>
+          </div>
+        {% endif %}
+
+        {% if temp_device.properties|length > 0 %}
+          <div class="mb-2">
+            <label class="content-title">Device Features</label>
+            <table class="manage-info-container">
+              <thead>
+                <td style="width: 30%;">Name</td>
+                <td>Property (IDF, ODF)</td>
+              </thead>
+              <tbody>
+                {% for key, value in temp_device.properties.items %}
+                  <tr>
+                    <td valign="center">
+                      <div class="model-df-list-container">
+                        {{ key }}
+                      </div>
+                    </td>
+                    <td valign="center">
+                      <div class="model-df-list-container">
+                        {{ value.property }} (IDF: {{ value.idf }}{% if value.odf != None %}, ODF: {{value.odf }}{% endif %})
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% endif %}
+
+        <div class="manage-info-container ">
+          <button type="submit" formaction="/add" id="model-save" {% if not temp_device.connected %} disabled {% endif %}>Save</button>
+        </div>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% if user.is_authenticated %}
+  <script>
+    function showNativeDeviceUrlBlock() {
+      const nativeDeviceUrlBlock = document.getElementById("native_device_url_block");
+      nativeDeviceUrlBlock.style.display="";
+    }
+
+    function hiddenNativeDeviceUrlBlock() {
+      const nativeDeviceUrlBlock = document.getElementById("native_device_url_block");
+      nativeDeviceUrlBlock.style.display="none";
+    }
+
+    function showDeleteNativeDeviceUrlButton() {
+      const deleteNativeDeviceUrlButton = document.getElementById("delete_native_device_url_button");
+      deleteNativeDeviceUrlButton.style.display="";
+    }
+
+    function hiddenDeleteNativeDeviceUrlButton() {
+      const deleteNativeDeviceUrlButton = document.getElementById("delete_native_device_url_button");
+      deleteNativeDeviceUrlButton.style.display="none";
+    }
+
+    function showCustomGatewayBlock() {
+      const customGatewayBlock = document.getElementById("custom_gateway_block");
+      customGatewayBlock.style.display="";
+    }
+
+    function hiddenCustomGatewayBlock() {
+      const customGatewayBlock = document.getElementById("custom_gateway_block");
+      customGatewayBlock.style.display="none";
+    }
+
+    function showDeleteGatewayUrlButton() {
+      const deleteGatewayUrlButton = document.getElementById("delete_gateway_url_button");
+      deleteGatewayUrlButton.style.display="";
+    }
+
+    function hiddenDeleteGatewayUrlButton() {
+      const deleteGatewayUrlButton = document.getElementById("delete_gateway_url_button");
+      deleteGatewayUrlButton.style.display="none";
+    }
+
+    function submitCreateDeviceForm() {
+      const deviceBase = document.getElementById("id_device_base");
+      const form = document.getElementById("create_iottalk_device_form");
+
+      if (deviceBase.options[deviceBase.selectedIndex].value == "native") {
+        form.action="/connect-native-device";
+      } else {
+        form.action="/connect-gateway";
+      }
+
+      form.submit();
+    }
+
+    function checkNativeUrlListAdd() {
+      const nativeUrlList = document.getElementById("id_native_url_list");
+      if (nativeUrlList.options[nativeUrlList.selectedIndex].value == "add") {
+        showNativeDeviceUrlBlock();
+        hiddenDeleteNativeDeviceUrlButton();
+      } else {
+        hiddenNativeDeviceUrlBlock();
+        showDeleteNativeDeviceUrlButton();
+        submitCreateDeviceForm();
+      }
+    }
+
+    function checkNativeUrlListDelete() {
+      const nativeUrlList = document.getElementById("id_native_url_list");
+      const optionValue = nativeUrlList.options[nativeUrlList.selectedIndex].value;
+      if (optionValue != "add" && optionValue != "") {
+        showDeleteNativeDeviceUrlButton();
+      } else {
+        hiddenDeleteNativeDeviceUrlButton();
+      }
+    }
+
+    function checkGatewayUrlListAdd() {
+      const gatewayUrlList = document.getElementById("id_gateway_url_list");
+      const optionValue = gatewayUrlList.options[gatewayUrlList.selectedIndex].value;
+      if (gatewayUrlList.options[gatewayUrlList.selectedIndex].value == "add") {
+        showCustomGatewayBlock();
+        hiddenDeleteGatewayUrlButton();
+      } else {
+        hiddenCustomGatewayBlock();
+        showDeleteGatewayUrlButton();
+        submitCreateDeviceForm();
+      }
+    }
+
+    function checkGatewayUrlListDelete() {
+      const gatewayUrlList = document.getElementById("id_gateway_url_list");
+      const optionValue = gatewayUrlList.options[gatewayUrlList.selectedIndex].value;
+      if (optionValue != "add" && optionValue != "") {
+        showDeleteGatewayUrlButton();
+      } else {
+        hiddenDeleteGatewayUrlButton();
+      }
+    }
+
+    function init() {
+      const deviceBase = document.getElementById("id_device_base");
+      const gatewayType = document.getElementById("id_gateway_type");
+      if (deviceBase.options[deviceBase.selectedIndex].value == "native") {
+        checkNativeUrlListDelete();
+        document.getElementById("id_native_url_list").addEventListener("change", checkNativeUrlListAdd);
+      } else if (deviceBase.options[deviceBase.selectedIndex].value == "gateway" && gatewayType.options [gatewayType.selectedIndex].value == "custom") {
+        checkGatewayUrlListDelete();
+        document.getElementById("id_gateway_url_list").addEventListener("change", checkGatewayUrlListAdd);
+      }
+    }
+
+    window.onload = init;
+  </script>
+{% endif %}
+
+{% endblock %}
+

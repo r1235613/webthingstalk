@@ -1,0 +1,48 @@
+import json
+import requests
+
+api_url = '{api_url}'
+device_name = '{device_name}'
+device_model = 'WT_Light'
+
+idf_list = ['wtBrightness-I', 'wtColor-I', 'wtColorMode-I', 'wtColorTemperature-I', 'wtOnOff-I']
+odf_list = ['wtBrightness-O', 'wtColor-O', 'wtColorTemperature-O', 'wtOnOff-O']
+
+def wtBrightness_I():
+    r = requests.get('{webthing_url}/properties/{brightness_property_name}', headers={headers})
+    return json.loads(r.text).get('{brightness_property_name}', 'None')
+
+def wtBrightness_O(data):
+    r = requests.get('{webthing_url}/properties/{brightness_property_name}', headers={headers})
+    requests.put('{webthing_url}/properties/{brightness_property_name}', json={{"{brightness_property_name}": data[0]}}, headers={headers})
+
+def wtColor_I():
+    r = requests.get('{webthing_url}/properties/{color_property_name}', headers={headers})
+    return json.loads(r.text).get('{color_property_name}', 'None')
+
+def wtColor_O(data):
+    r = requests.get('{webthing_url}/properties/{color_property_name}', headers={headers})
+    requests.put('{webthing_url}/properties/{color_property_name}', json={{"{color_property_name}": data[0]}}, headers={headers})
+
+def wtColorMode_I():
+    r = requests.get('{webthing_url}/properties/{color_mode_property_name}', headers={headers})
+    return json.loads(r.text).get('{color_mode_property_name}', 'None')
+
+def wtColorTemperature_I():
+    r = requests.get('{webthing_url}/properties/{color_temperature_name}', headers={headers})
+    return json.loads(r.text).get('{color_temperature_name}', 'None')
+
+def wtColorTemperature_O(data):
+    r = requests.get('{webthing_url}/properties/{color_temperature_name}', headers={headers})
+    requests.put('{webthing_url}/properties/{color_temperature_name}', json={{"{color_temperature_name}": data[0]}}, headers={headers})
+
+def wtOnOff_I():
+    r = requests.get('{webthing_url}/properties/{on_off_property_name}', headers={headers})
+    return json.loads(r.text).get('{on_off_property_name}', 'None')
+
+def wtOnOff_O(data):
+    r = requests.get('{webthing_url}/properties/{on_off_property_name}', headers={headers})
+    status = json.loads(r.text)['{on_off_property_name}']
+    if bool(status) == bool(data[0]):
+        return
+    requests.put('{webthing_url}/properties/{on_off_property_name}', json={{"{on_off_property_name}": bool(data[0])}}, headers={headers})
