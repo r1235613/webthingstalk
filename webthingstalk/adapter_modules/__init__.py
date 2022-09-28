@@ -4,7 +4,7 @@ from .BarometricPressureSensor import BarometricPressureSensor
 from .BinarySensor import BinarySensor
 from .Camera import Camera
 from .ColorControl import ColorControl
-
+from .ColorSensor import ColorSensor
 from .DoorSensor import DoorSensor
 from .Light import Light
 from .OnOffSwitch import OnOffSwitch
