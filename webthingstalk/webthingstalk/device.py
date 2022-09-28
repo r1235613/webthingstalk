@@ -12,6 +12,12 @@ from development.models import User
 from .gateway import gateway_hander
 
 device_table = {
+    'Alarm': {
+        'properties': {
+            'AlarmProperty': {'idf': ['wtAlarm-I'], 'odf': ['wtAlarm-O']},
+        },
+        'modules': adapter_modules.Alarm,
+    },
     'Light': {
         'properties': {
             'BrightnessProperty': {'idf': ['wtBrightness-I'], 'odf': ['wtBrightness-O']},
