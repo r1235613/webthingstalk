@@ -31,6 +31,12 @@ device_table = {
         },
         'modules': adapter_modules.BarometricPressureSensor,
     },
+    'BinarySensor': {
+        'properties': {
+            'BooleanProperty': {'idf': ['wtBoolean-I'], 'odf': []},
+        },
+        'modules': adapter_modules.BinarySensor,
+    },
     'Light': {
         'properties': {
             'BrightnessProperty': {'idf': ['wtBrightness-I'], 'odf': ['wtBrightness-O']},
