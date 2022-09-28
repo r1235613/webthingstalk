@@ -8,6 +8,6 @@ upload
 django-x-talk-template/
 .DS_Store
 conf/nginx/ssl/ssl
-conf/nginx/dhparam.pem
+conf/nginx/ssl/dhparam.pem
 webthingstalk/static/admin
 webthingstalk/static/fontawesome_free
