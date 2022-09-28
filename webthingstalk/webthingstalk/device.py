@@ -54,6 +54,12 @@ device_table = {
         },
         'module': adapter_modules.ColorControl,
     },
+    'DoorSensor': {
+        'properties': {
+            'OpenProperty': {'idf': ['wtOpen-I'], 'odf': []},
+        },
+        'modules': adapter_modules.DoorSensor,
+    },
     'Light': {
         'properties': {
             'BrightnessProperty': {'idf': ['wtBrightness-I'], 'odf': ['wtBrightness-O']},

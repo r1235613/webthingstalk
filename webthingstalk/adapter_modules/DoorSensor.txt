@@ -1,0 +1,13 @@
+import json
+import requests
+
+api_url = '{api_url}'
+device_name = '{device_name}'
+device_model = 'WT_DoorSensor'
+
+idf_list = ['wtOpen-I']
+odf_list = []
+
+def wtOpen_I():
+    r = requests.get('{webthing_url}/properties/{open_property_name}', headers={headers})
+    return json.loads(r.text).get('{open_property_name}', 'None')
