@@ -2,16 +2,16 @@
 SECRET_KEY="<your_secret_key>"
 
 # OAuth 2.0 Client ID
-OAUTH2_CLIENT_ID="OtK5YzvjTojhpFSWi2DatoYUHPYQMHtFXFax9c0c"
+OAUTH2_CLIENT_ID="dBNc77chJaDHATCM0ej4jIVDV997Nnzye5Iyk5fk"
 
 # OAuth 2.0 Client Secret
-OAUTH2_CLIENT_SECRET="VxkzNt8jLQCR02QDWFLyCCaYsyJh7qiNeir7GGgxiX7v5tHOGKZvyxXMNmBLyrR8jD3cJct6KBGS6a1iX3zAxlf1FTIEeQuwyqw3Q2kP38WsYThKAzSbT9589CUXrEjn8i2csvKtnQlXU3EZ1eSKEDk1Xc60FYFE"
+OAUTH2_CLIENT_SECRET="PHy8pIvtd5NzZ6WKrWDc40ennFhKDcZWRgEYh7FGk5O4bA8tcaA5wiqc9lE8xH12ItIbhxbf3K8Li1sSLojkA1gqSfQZKmSNtpZuHj72HVjGoFR3i0yZjffw6EZaEFeMGQj4RyL44oJWjgcAljnED8jksyP6R40y"
 
 # OAuth 2.0 Redirect URI
-OAUTH2_REDIRECT_URI="https://127.0.0.1:8000/auth/callback"
+OAUTH2_REDIRECT_URI="https://webthingstalk-yuching.mylabs.space/auth/callback"
 
 # Base URL of Account System
-ACCOUNT_HOST="https://iottalk.yuching.app/account"
+ACCOUNT_HOST="https://iottalk-yuching.mylabs.space/account"
 
 # OpenID Connect Discovery Endpoint
 OIDC_DISCOVERY_ENDPOINT=${ACCOUNT_HOST}/.well-known/openid-configuration
@@ -26,12 +26,12 @@ OAUTH2_TOKEN_ENDPOINT=${ACCOUNT_HOST}/oauth2/v1/token/
 OAUTH2_REVOCATION_ENDPOINT=${ACCOUNT_HOST}/oauth2/v1/revoke/
 
 # IoTtalk URI
-IOTTALK_URI="https://iottalk.yuching.app"
+IOTTALK_URI="https://iottalk-yuching.mylabs.space"
 
 # WebThingsTalk URI
-WEBTHINGSTALK_URI="https://127.0.0.1:8000"
+WEBTHINGSTALK_URI="https://webthingstalk-yuching.mylabs.space"
 
 # WebTHingsTalk Default Gateway
-DEFAULT_GATEWAY_URI="http://192.168.113.104:8080"
+DEFAULT_GATEWAY_URI="http://webthingstalk-yuching.mylabs.space:8080"
 DEFAULT_GATEWAY_USERNAME="iottalk@iottalk.tw"
 DEFAULT_GATEWAY_PASSWORD="iottalk"

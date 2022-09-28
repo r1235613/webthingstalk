@@ -10,3 +10,5 @@ django-x-talk-template/
 conf/nginx/ssl/dhparam.pem
 conf/nginx/ssl/nginx.crt
 conf/nginx/ssl/nginx.key
+webthingstalk/static/admin
+webthingstalk/static/fontawesome_free

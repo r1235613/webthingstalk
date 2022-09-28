@@ -9,7 +9,6 @@ iottalk-py = "*"
 psycopg2-binary = "*"
 beautifulsoup4 = "*"
 python-dotenv = "*"
-django-xtalk-template = {path = "./django-x-talk-template"}
 django-jsonview = "*"
 
 [dev-packages]
