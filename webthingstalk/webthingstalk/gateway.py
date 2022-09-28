@@ -22,6 +22,8 @@ class _Gateway:
 
 class _GatewayHander():
     def __init__(self):
+        self._init_default_gateway()
+
         default_gateway_user_token = self._get_user_token(
             settings.DEFAULT_GATEWAY_URI, settings.DEFAULT_GATEWAY_USERNAME, settings.DEFAULT_GATEWAY_PASSWORD)
         self.default_gateway = _Gateway(
@@ -29,6 +31,12 @@ class _GatewayHander():
         self.default_gateway.get_device_token()
 
         self._custom_gateway = {}
+
+    def _init_default_gateway(self):
+        requests.post(
+            '{0}/settings/skiptunnel'.format(settings.DEFAULT_GATEWAY_URI), json={})
+        requests.post('{0}/users'.format(settings.DEFAULT_GATEWAY_URI), json={
+                      "name": settings.DEFAULT_GATEWAY_USERNAME, "email": settings.DEFAULT_GATEWAY_USERNAME, "password": settings.DEFAULT_GATEWAY_PASSWORD})
 
     def _get_user_token(self, url, username, password):
         url = url + '/login'
