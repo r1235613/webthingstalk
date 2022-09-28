@@ -38,21 +38,21 @@ services:
     networks:
       - webthingstalk-net
 
-  db:
-    image: mysql:8.0.27
-    restart: always
-    volumes:
-      - db-data:/var/lib/mysql
-    ports:
-      - 3306:3306
-    command: >
-      --sql_mode='' --innodb_strict_mode=OFF --character-set-server=utf8mb4 --wait-timeout=31536000 --interactive-timeout=31536000
-    environment:
-      MYSQL_ROOT_PASSWORD: root-password # please change it
-      MYSQL_USER: webthingstalk
-      MYSQL_PASSWORD: webthingstalk-password # please change it
-    networks:
-      - webthingstalk-net
+  # db:
+  #   image: mysql:8.0.27
+  #   restart: always
+  #   volumes:
+  #     - db-data:/var/lib/mysql
+  #   ports:
+  #     - 3306:3306
+  #   command: >
+  #     --sql_mode='' --innodb_strict_mode=OFF --character-set-server=utf8mb4 --wait-timeout=31536000 --interactive-timeout=31536000
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: root-password # please change it
+  #     MYSQL_USER: webthingstalk
+  #     MYSQL_PASSWORD: webthingstalk-password # please change it
+  #   networks:
+  #     - webthingstalk-net
 
   webthings-gateway:
     image: webthingsio/gateway:latest
@@ -69,7 +69,7 @@ services:
 
 volumes:
   default-gateway-data:
-  db-data:
+  # db-data:
   webthingstalk-static-data:
 
 
