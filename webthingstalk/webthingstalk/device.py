@@ -37,6 +37,12 @@ device_table = {
         },
         'modules': adapter_modules.BinarySensor,
     },
+    'WT_Camera': {
+        'properties': {
+            'ImageProperty': {'idf': ['wtImage-I'], 'odf': []},
+        },
+        'modules': adapter_modules.Camera,
+    },
     'Light': {
         'properties': {
             'BrightnessProperty': {'idf': ['wtBrightness-I'], 'odf': ['wtBrightness-O']},
