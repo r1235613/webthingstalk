@@ -2,13 +2,13 @@
 SECRET_KEY="<your_secret_key>"
 
 # OAuth 2.0 Client ID
-OAUTH2_CLIENT_ID="TZIauFEs71RpjiF50iOAh6nUbtYINqOp6PFFUOoU"
+OAUTH2_CLIENT_ID="dBNc77chJaDHATCM0ej4jIVDV997Nnzye5Iyk5fk"
 
 # OAuth 2.0 Client Secret
-OAUTH2_CLIENT_SECRET="LXT3syh12YpMtEpqhmS7znVyTjzaaT1hkbgAR8ct7CufJhtqE2aPiGXLbK98k2PNIfWlOQcaKgkS4yJxImVi7ZkxIuFmudlOqTmxfq0P8hMYPgLPLCLgxDlELsB6ZCQoS8xEuIuJabGG4nGqzpHQr813IJ7xMSIL"
+OAUTH2_CLIENT_SECRET="PHy8pIvtd5NzZ6WKrWDc40ennFhKDcZWRgEYh7FGk5O4bA8tcaA5wiqc9lE8xH12ItIbhxbf3K8Li1sSLojkA1gqSfQZKmSNtpZuHj72HVjGoFR3i0yZjffw6EZaEFeMGQj4RyL44oJWjgcAljnED8jksyP6R40y"
 
 # OAuth 2.0 Redirect URI
-OAUTH2_REDIRECT_URI="https://127.0.0.1:8000/auth/callback"
+OAUTH2_REDIRECT_URI="https://webthingstalk-yuching.mylabs.space/auth/callback"
 
 # Base URL of Account System
 ACCOUNT_HOST="https://iottalk-yuching.mylabs.space/account"
@@ -29,7 +29,7 @@ OAUTH2_REVOCATION_ENDPOINT=${ACCOUNT_HOST}/oauth2/v1/revoke/
 IOTTALK_URI="https://iottalk-yuching.mylabs.space"
 
 # WebThingsTalk URI
-WEBTHINGSTALK_URI="https://127.0.0.1:8000"
+WEBTHINGSTALK_URI="https://webthingstalk-yuching.mylabs.space"
 
 # WebThingsTalk DB
 DATABASE_HOST="db"
@@ -39,6 +39,6 @@ DATABASE_USER="webthingstalk"
 DATABASE_PASSWORD="webthingstalk-password"
 
 # WebThingsTalk Default Gateway
-DEFAULT_GATEWAY_URI="http://192.168.113.107:8080"
+DEFAULT_GATEWAY_URI="http://webthingstalk-yuching.mylabs.space:8080"
 DEFAULT_GATEWAY_USERNAME="iottalk@iottalk.tw"
 DEFAULT_GATEWAY_PASSWORD="iottalk"
