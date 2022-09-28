@@ -6,8 +6,6 @@ services:
       context: .
     image: webthingstalk:${USER}
     restart: on-failure
-    ports:
-      - 8000:8000
     volumes:
       - ./conf/env/env:/app/conf/env/env:ro
       - ./conf/gunicorn/gunicorn.config.py:/app/conf/gunicorn/gunicorn.config.py
@@ -16,9 +14,10 @@ services:
       - webthingstalk-net
     environment:
       - DEPLOYMENT=True
-      - PIPENV_PIPFILE=/app/Pipfile
+    stdin_open: true # docker run -i
+    tty: true # docker run -t
     command: >
-      pipenv run gunicorn -c conf/gunicorn/gunicorn.config.py core.wsgi
+      python3 -m gunicorn -c conf/gunicorn/gunicorn.config.py core.wsgi
 
   nginx:
     image: nginx:1.15.11-alpine
@@ -32,25 +31,24 @@ services:
       - ./conf/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./conf/nginx/ssl/ssl:/etc/nginx/ssl
       - ./conf/nginx/ssl/dhparam.pem:/etc/nginx/dhparam.pem
-      - ./webthingstalk/static:/static
+      - webthingstalk-static-data:/static
     networks:
       - webthingstalk-net
 
-  # db:
-  #   image: mysql:8.0.27
-  #   restart: always
-  #   volumes:
-  #     - db-data:/var/lib/mysql
-  #   ports:
-  #     - 3306:3306
-  #   command: >
-  #     --sql_mode='' --innodb_strict_mode=OFF --character-set-server=utf8mb4 --wait-timeout=31536000 --interactive-timeout=31536000
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: root-password # please change it
-  #     MYSQL_USER: webthingstalk
-  #     MYSQL_PASSWORD: webthingstalk-password # please change it
-  #   networks:
-  #     - webthingstalk-net
+  db:
+    image: mysql:8.0.27
+    restart: always
+    volumes:
+      - db-data:/var/lib/mysql
+    command: >
+      --sql_mode='' --innodb_strict_mode=OFF --character-set-server=utf8mb4 --wait-timeout=31536000 --interactive-timeout=31536000
+    environment:
+      MYSQL_ROOT_PASSWORD: root-password # please change it
+      MYSQL_DATABASE: webthingstalk
+      MYSQL_USER: webthingstalk
+      MYSQL_PASSWORD: webthingstalk-password # please change it
+    networks:
+      - webthingstalk-net
 
   webthings-gateway:
     image: webthingsio/gateway:latest
@@ -67,7 +65,7 @@ services:
 
 volumes:
   default-gateway-data:
-  # db-data:
+  db-data:
   webthingstalk-static-data:
 
 

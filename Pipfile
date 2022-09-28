@@ -6,10 +6,11 @@ name = "pypi"
 [packages]
 fontawesome-free = "*"
 iottalk-py = "*"
-psycopg2-binary = "*"
 beautifulsoup4 = "*"
 python-dotenv = "*"
 django-jsonview = "*"
+django-xtalk-template = {path = "./django-x-talk-template"}
+mysqlclient = "*"
 
 [dev-packages]
 autopep8 = "*"

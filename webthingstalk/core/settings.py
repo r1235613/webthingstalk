@@ -46,7 +46,6 @@ SESSION_COOKIE_NAME = "mycookie"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEPLOYMENT') != 'True'
-print('DEBUG:', DEBUG)
 
 ALLOWED_HOSTS = ['*']
 
@@ -100,12 +99,32 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'HOST': os.getenv('DATABASE_HOST'),
+            'PORT': os.getenv('DATABASE_PORT'),
+            'NAME': os.getenv('DATABASE_NAME'),
+            'USER': os.getenv('DATABASE_USER'),
+            'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+            # Set the SQL mode to STRICT_ALL_TABLES.
+            # This is not a mandatory option but Django recommends.
+            #
+            # Ref: https://docs.djangoproject.com/en/3.1/ref/databases/#setting-sql-mode
+            # Ref: https://tinyurl.com/m9fckp4y (MySQL official documentation)
+            'OPTIONS': {
+                'sql_mode': 'STRICT_ALL_TABLES',
+            },
+        },
+    }
 
 
 # Password validation

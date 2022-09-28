@@ -4,23 +4,6 @@ from django.db import models
 from django.conf import settings
 from django.forms import modelformset_factory
 
-from xtalk_template.models import AbstractUser
-from xtalk_template.models import AbstractRefreshToken
-from xtalk_template.models import AbstractAccessToken
-
-
-class User(AbstractUser):
-    pass
-
-
-class RefreshToken(AbstractRefreshToken):
-    pass
-
-
-class AccessToken(AbstractAccessToken):
-    pass
-
-
 class DeviceUrl(models.Model):
     url = models.TextField(blank=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -44,7 +27,7 @@ class Device(models.Model):
                              on_delete=models.CASCADE)
     token = models.TextField(blank=False)
 
-    device_name = models.TextField(blank=True)
+    device_name = models.CharField(max_length=100, unique=True)
 
     creat_time = models.DateTimeField(auto_now_add=True)
     start_time = models.DateTimeField(null=True)
