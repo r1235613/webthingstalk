@@ -37,11 +37,22 @@ device_table = {
         },
         'modules': adapter_modules.BinarySensor,
     },
-    'WT_Camera': {
+    'Camera': {
         'properties': {
             'ImageProperty': {'idf': ['wtImage-I'], 'odf': []},
         },
         'modules': adapter_modules.Camera,
+    },
+    'ColorControl': {
+        'properties': {
+            'ColorModeProperty': {'idf': ['wtColorMode-I'], 'odf': []},
+            'ColorProperty': {'idf': ['wtColor-I'], 'odf': ['wtColor-O']},
+            'ColorTemperatureProperty': {
+                'idf': ['wtColorTemperature-I'],
+                'odf': ['wtColorTemperature-O']
+            },
+        },
+        'module': adapter_modules.ColorControl,
     },
     'Light': {
         'properties': {
@@ -59,17 +70,6 @@ device_table = {
     'OnOffSwitch': {
         'properties': {'OnOffProperty': {'idf': ['wtOnOff-I'], 'odf': ['wtOnOff-O']}},
         'module': adapter_modules.OnOffSwitch,
-    },
-    'ColorControl': {
-        'properties': {
-            'ColorModeProperty': {'idf': ['wtColorMode-I'], 'odf': []},
-            'ColorProperty': {'idf': ['wtColor-I'], 'odf': ['wtColor-O']},
-            'ColorTemperatureProperty': {
-                'idf': ['wtColorTemperature-I'],
-                'odf': ['wtColorTemperature-O']
-            },
-        },
-        'module': adapter_modules.ColorControl,
     },
     'PushButton': {
         'properties': {
